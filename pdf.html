@@ -297,9 +297,6 @@
             const payments = JSON.parse(sessionStorage.getItem('payments'));
 
             if (!payments || payments.length === 0) {
-                console.log('Сначала рассчитайте платежи!');
-                // For standalone page, a simple alert is acceptable if no custom modal is built.
-                // However, per general instructions, avoid alert(). Let's update the result area.
                 document.getElementById('result').innerHTML = `<p style="color: red;">Сначала рассчитайте платежи!</p>`;
                 return;
             }
@@ -334,7 +331,14 @@
 
             const element = document.createElement('div');
             element.innerHTML = tableContent;
-            html2pdf().from(element).save('график_погашения.pdf');
+
+            // Configure html2pdf to include margins
+            html2pdf().from(element).set({
+                margin: [15, 15, 15, 15], // Top, Right, Bottom, Left margins in pixels
+                filename: 'график_погашения.pdf',
+                html2canvas: { scale: 2 }, // Increase scale for better quality if needed
+                jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
+            }).save();
         }
 
         document.addEventListener('input', (e) => {
