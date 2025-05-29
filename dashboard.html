@@ -1,494 +1,1041 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Expert Credit</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --primary: #5e4ae3;
-      --accent: #ff6f61;
-      --bg: #f0f2f5;
-      --card-bg: #ffffff;
-      --text: #333333;
-      --light-text: #777777;
-      --radius: 12px;
-      --transition: 0.4s;
-      --shadow: rgba(0, 0, 0, 0.08);
-      --gradient-start: #5e4ae3;
-      --gradient-end: #ff6f61;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-      transition: background var(--transition), color var(--transition);
-    }
-    .sidebar {
-      width: 280px;
-      background: #fff;
-      box-shadow: 2px 0 10px var(--shadow);
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-      gap: 20px;
-      position: relative;
-      z-index: 30;
-    }
-    .links-wrapper { display: flex; flex-direction: column; height: 100%; }
-    .top-links { flex-grow: 0; }
-    .bottom-links { margin-top: auto; }
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .menu-btn {
-      background: none;
-      border: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px;
-      width: 100%;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: background var(--transition), transform var(--transition);
-      color: var(--text);
-    }
-    .menu-btn.active,
-    .menu-btn:hover {
-      background: var(--primary);
-      color: #fff;
-      transform: translateX(5px);
-    }
-    .theme-switch {
-      margin-top: auto;
-      cursor: pointer;
-      color: var(--light-text);
-    }
-    .content {
-      flex: 1;
-      padding: 40px;
-      overflow-y: auto;
-      position: relative;
-      transition: background var(--transition);
-    }
-    .content.no-scroll { overflow: hidden; }
-    .content::before,
-    .content::after {
-      content: '';
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.1;
-      animation: blob 12s infinite;
-      pointer-events: none;
-    }
-    .content::before {
-      width: 300px; height: 300px;
-      top: -100px; left: -100px;
-      background: var(--gradient-start);
-    }
-    .content::after {
-      width: 400px; height: 400px;
-      bottom: -150px; right: -150px;
-      background: var(--gradient-end);
-      animation-delay: 6s;
-    }
-    @keyframes blob {
-      0%,100% { transform: translate(0,0) scale(1); }
-      50%     { transform: translate(30px,30px) scale(1.2); }
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
-    .header h2 {
-      font-size: 1.8rem;
-      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .clock { font-size: 1rem; color: var(--light-text); }
-    .section { display: none; animation: fadeIn var(--transition); }
-    .section.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .links-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
-      gap: 20px;
-    }
-    .links-cards a {
-      display: block;
-      text-decoration: none;
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: var(--radius);
-      box-shadow: 0 4px 12px var(--shadow);
-      transition: transform var(--transition), box-shadow var(--transition);
-    }
-    .links-cards a:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 6px 16px var(--shadow);
-    }
-    .quick-links {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-    .quick-links a {
-      flex: 1 1 calc(20% - 15px);
-      text-align: center;
-      text-decoration: none;
-      padding: 12px;
-      border-radius: var(--radius);
-      background: var(--card-bg);
-      box-shadow: 0 2px 8px var(--shadow);
-      transition: background var(--transition), transform var(--transition);
-    }
-    .quick-links a:hover {
-      background: var(--accent);
-      color: #fff;
-      transform: scale(1.05);
-    }
-    .documents-list {
-      list-style: none;
-      margin-top: 20px;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .documents-list li {
-      cursor: pointer;
-      padding: 12px;
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: 0 2px 8px var(--shadow);
-      transition: background var(--transition), transform var(--transition);
-    }
-    .documents-list li:hover {
-      background: var(--primary);
-      color: #fff;
-      transform: translateX(5px);
-    }
-    .calendar-wrapper { position: sticky; top: 20px; }
-    .calendar-frame {
-      width: 100%; height: 750px;
-      border: none;
-      border-radius: var(--radius);
-      box-shadow: 0 2px 12px var(--shadow);
-    }
-    .btn-group {
-      display: flex;
-      gap: 15px;
-      margin-top: 15px;
-    }
-    .btn-group button {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: var(--radius);
-      background: var(--accent);
-      color: #fff;
-      transition: transform var(--transition);
-    }
-    .btn-group button:hover { transform: translateY(-3px); }
-    .chat-window {
-      background: var(--card-bg);
-      height: 400px;
-      padding: 15px;
-      border-radius: var(--radius);
-      overflow-y: auto;
-      box-shadow: 0 2px 12px var(--shadow);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .chat-input {
-      display: flex; gap: 10px; margin-top: 10px;
-    }
-    .chat-input input {
-      flex: 1;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: var(--radius);
-    }
-	.documents-list li {
-	  /* убираем cursor:pointer, т.к. ссылка сама по себе кликабельна */
-	  cursor: default;
-	}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision Pro Dashboard</title>
+    <style>
+        :root {
+            --base-font-size: 16px;
+            --text-color: rgba(0, 0, 0, 0.9); /* Darker text for contrast on light glass */
+            --text-color-dimmed: rgba(0, 0, 0, 0.6); /* Dimmed text for secondary info */
+            --highlight-color: #007aff; /* Apple's blue */
+            --background-blur: 25px; /* Increased blur for stronger glass effect */
+            --glass-background-light: rgba(255, 255, 255, 0.000000000005); /* More transparent white */
+            --glass-background-dark: rgba(255, 255, 255, 0.05); /* Consistent transparency */
+            --glass-border-color: rgba(255, 255, 255, 0.3); /* Softer, more transparent border */
+            --card-shadow: 0 15px 50px rgba(0, 0, 0, 0.15); /* Enhanced shadow for depth */
+            --border-radius: 40px; /* Larger border-radius for the main display */
+            --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
 
-	.documents-list li a {
-	  display: block;
-	  width: 100%;
-	  height: 100%;
-	  color: inherit;
-	  text-decoration: none;
-	  padding: 12px;
-	  border-radius: var(--radius);
-	  box-shadow: 0 2px 8px var(--shadow);
-	  transition: background var(--transition), transform var(--transition);
-	}
+        body {
+            margin: 0;
+            font-family: var(--font-family);
+            background-image: url('https://sun9-3.userapi.com/impg/vypTkzacYsJCoVrmJIXK-B39gwJ9pBhfpGG_RQ/Zl_USKMxVW0.jpg?size=2560x1440&quality=95&sign=0377bb721df791d2222e20f2f7d2d6c4&type=album'); /* Вставьте URL вашей картинки сюда */
+            background-size: cover; /* Растягивает картинку, чтобы она покрывала весь фон */
+            background-position: center; /* Центрирует картинку на фоне */
+            color: var(--text-color);
+            display: flex;
+            min-height: 100vh;
+            overflow: hidden;
+            background-attachment: fixed;
+        }
 
-	.documents-list li a:hover {
-	  background: var(--primary);
-	  color: #fff;
-	  transform: translateX(5px);
-	}
-	
-    .chat-input button {
-      padding: 12px 20px;
-      border: none;
-      border-radius: var(--radius);
-      background: var(--gradient-start);
-      color: #fff;
-      transition: transform var(--transition);
-    }
-    .chat-input button:hover { transform: scale(1.05); }
+        .dashboard-container {
+            display: flex;
+            width: 100vw; /* Take full viewport width */
+            height: 100vh; /* Take full viewport height */
+            padding: 15px 20px 15px 10px; /* Top, Right, Bottom, Left padding as requested */
+            box-sizing: border-box; /* Include padding in width/height */
+            gap: 20px; /* Space between sidebar and main display */
+        }
 
-    @media (max-width: 768px) {
-      .sidebar {
-        position: absolute;
-        transform: translateX(-100%);
-        transition: transform var(--transition);
-      }
-      .sidebar.open { transform: translateX(0); }
-      .hamburger {
-        display: block;
-        position: absolute;
-        top: 20px; left: 20px;
-        background: var(--primary);
-        border: none;
-        padding: 10px;
-        border-radius: 50%;
-        color: #fff;
-      }
-      .content { padding: 80px 20px 20px; }
-    }
-	  a:link,
-a:visited,
-a:hover,
-a:active {
-  color: inherit;
-  text-decoration: none;
-}
-  </style>
+        .sidebar {
+            width: 80px; /* Narrower for icon-based navigation */
+            height: 100%; /* Take full height of its container */
+            background: var(--glass-background-dark);
+            backdrop-filter: blur(var(--background-blur));
+            -webkit-backdrop-filter: blur(var(--background-blur));
+            border-radius: var(--border-radius);
+            border: 1px solid var(--glass-border-color);
+            box-shadow: var(--card-shadow);
+            padding: 20px 0; /* Vertical padding */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center icons horizontally */
+            z-index: 20; /* Ensure sidebar is above main-display if needed for small screens */
+			
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 15px; /* Spacing between icons */
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center icon within circular button */
+            width: 50px; /* Circular button size */
+            height: 50px;
+            border-radius: 50%; /* Make it circular */
+            text-decoration: none;
+            color: var(--text-color-dimmed);
+            background-color: transparent;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            font-size: 1.5em; /* Icon size */
+            position: relative; /* For tooltip-like text */
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active { /* Added .active for visual indication */
+            background-color: rgba(255, 255, 255, 0.3); /* Brighter hover state */
+            color: var(--text-color);
+        }
+
+        .sidebar-nav li a span.text {
+            position: absolute;
+            left: 60px; /* Position text next to icon */
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 100;
+        }
+
+        .sidebar-nav li a:hover span.text {
+            opacity: 1;
+        }
+
+        .main-display {
+            flex: 1; /* Allows main display to take remaining space */
+            background: var(--glass-background-light);
+            backdrop-filter: blur(var(--background-blur));
+            -webkit-backdrop-filter: blur(var(--background-blur));
+            border-radius: var(--border-radius);
+            border: 1px solid var(--glass-border-color);
+            padding: 30px 40px;
+            box-shadow: var(--card-shadow);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Allow scrolling if content overflows */
+        }
+
+        /* Header Info (Date, Time, Location) */
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .header-info .date-time {
+            font-weight: 500;
+            color: var(--text-color-dimmed);
+        }
+
+        .header-info .location {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1.2em;
+        }
+
+        /* Common section styling */
+        .content-section {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            flex-grow: 1;
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .content-section.active {
+            display: flex; /* Show active section */
+        }
+
+        /* Links Section Styling (formerly Weather) */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 columns, equal width */
+            gap: 25px; /* Spacing between buttons */
+            padding: 20px; /* Padding around the grid */
+            flex-grow: 1; /* Allow the grid to take available space */
+            align-content: center; /* Center grid items vertically if space allows */
+            justify-items: center; /* Center grid items horizontally */
+        }
+
+        .link-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 120px; /* Fixed width for buttons */
+            height: 120px; /* Fixed height for buttons */
+            background: rgba(255, 255, 255, 0.2); /* Slightly more opaque glass for buttons */
+            backdrop-filter: blur(var(--background-blur));
+            -webkit-backdrop-filter: blur(var(--background-blur));
+            border-radius: 25px; /* Rounded corners for buttons */
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            color: var(--text-color);
+            font-size: 0.9em;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease; /* Smooth hover effect */
+        }
+
+        .link-button:hover {
+            background-color: rgba(255, 255, 255, 0.3); /* Brighter on hover */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .link-button .icon {
+            font-size: 2.5em; /* Icon size */
+            margin-bottom: 10px;
+            color: var(--highlight-color); /* Use highlight color for icons */
+        }
+
+
+        /* Search Section Styling (formerly Notifications) */
+        .search-section-content { /* Renamed to avoid conflict with .search-section for layout */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px; /* Space from header */
+            margin-bottom: 40px; /* Space from links */
+            flex-grow: 1; /* Allow search section to take available space */
+            justify-content: center;
+        }
+
+        .search-input-container {
+            display: flex;
+            width: 100%; /* Adjust width of search bar */
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input {
+            flex-grow: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            font-size: 1.1em;
+            color: var(--text-color);
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-color-dimmed);
+            opacity: 0.7;
+        }
+
+        .search-button {
+            background-color: var(--highlight-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .search-button:hover {
+            background-color: #005bb5; /* Darker blue on hover */
+        }
+
+        /* Quick Links Styling within Search Section */
+        .quick-links-section {
+            margin-top: 10px; /* Space from search bar */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .quick-links-section h2 {
+            font-size: 1.6em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--text-color);
+        }
+
+        .quick-links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Responsive grid for links */
+            gap: 20px;
+            width: 100%;
+            max-width: 800px; /* Max width for links grid */
+            justify-items: center;
+        }
+
+        .quick-link-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center content vertically */
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.9em;
+            font-weight: 500;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            width: 120px; /* Fixed width for consistency */
+            height: 120px; /* Fixed height for consistency */
+            box-sizing: border-box; /* Include padding in width/height */
+        }
+
+        .quick-link-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .quick-link-item .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: var(--highlight-color);
+        }
+
+        /* Analytics Section Styling */
+        .analytics-section iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Documents Section Styling */
+        .documents-section-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px; /* Max width for content */
+            box-sizing: border-box;
+        }
+
+        .documents-section-content .search-input-container {
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .file-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .file-item .file-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-item .file-icon {
+            font-size: 1.5em;
+            margin-right: 15px;
+            color: var(--highlight-color);
+        }
+
+        .file-item .file-name {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .file-item .download-link {
+            color: var(--highlight-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .file-item .download-link:hover {
+            color: #005bb5;
+        }
+
+        /* Chat Section Styling */
+        .chat-section-content {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            width: 100%;
+            max-width: 1500px;
+            background: rgba(255, 255, 255, 0.1); /* Glass effect for chat window */
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-top: 20px;
+            height: 60vh; /* Make chat window take significant height */
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            max-width: 80%; /* Limit message bubble width */
+        }
+
+        .chat-message.user {
+            align-self: flex-end; /* Align user messages to the right */
+            justify-content: flex-end;
+        }
+
+        .chat-message.ai {
+            align-self: flex-start; /* Align AI messages to the left */
+            justify-content: flex-start;
+        }
+
+        .chat-message .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--highlight-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9em;
+            flex-shrink: 0;
+        }
+
+        .chat-message.ai .avatar {
+            background-color: #6c757d; /* Grey for AI */
+        }
+
+        .chat-message .message-bubble {
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 0.95em;
+            line-height: 1.4;
+            word-wrap: break-word; /* Ensure long words wrap */
+            white-space: pre-wrap; /* Preserve whitespace and breaks */
+        }
+
+        .chat-message.user .message-bubble {
+            background-color: var(--highlight-color);
+            color: white;
+            border-bottom-right-radius: 5px; /* Tail effect */
+        }
+
+        .chat-message.ai .message-bubble {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: var(--text-color);
+            border-bottom-left-radius: 5px; /* Tail effect */
+        }
+
+        .loading-indicator {
+            text-align: center;
+            padding: 10px;
+            color: var(--text-color-dimmed);
+            font-style: italic;
+            display: none; /* Hidden by default */
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.6);
+            font-size: 1em;
+            color: var(--text-color);
+            outline: none;
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-color-dimmed);
+        }
+
+        .chat-send-button {
+            background-color: var(--highlight-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .chat-send-button:hover {
+            background-color: #005bb5;
+            transform: translateY(-2px);
+        }
+
+        /* Scrollbar for Webkit browsers */
+        .main-display::-webkit-scrollbar,
+        .chat-messages::-webkit-scrollbar {
+            width: 8px; /* For vertical scrollbar */
+        }
+
+        .main-display::-webkit-scrollbar-track,
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+
+        .main-display::-webkit-scrollbar-thumb,
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .main-display::-webkit-scrollbar-thumb:hover,
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+                padding: 15px 20px 15px 10px;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 15px 0;
+                flex-direction: row;
+                justify-content: space-around;
+                border-radius: 20px;
+                margin-bottom: 20px;
+            }
+            .sidebar-nav ul {
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-around;
+            }
+            .sidebar-nav li {
+                margin: 0 5px;
+            }
+            .sidebar-nav li a span.text {
+                display: none;
+            }
+            .main-display {
+                width: 100%;
+                height: auto;
+                padding: 25px;
+                border-radius: 20px;
+            }
+            .header-info {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            .links-grid, .quick-links-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 columns on smaller tablets */
+                gap: 20px;
+            }
+            .link-button, .quick-link-item {
+                width: 100px; /* Adjust size for smaller screens */
+                height: 100px;
+                font-size: 0.8em;
+            }
+            .link-button .icon, .quick-link-item .icon {
+                font-size: 2em;
+            }
+            .search-input-container {
+                width: 90%;
+            }
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px;
+            }
+            .file-item .download-link {
+                margin-top: 10px;
+            }
+            .chat-message .message-bubble {
+                max-width: 85%; /* More width on smaller screens */
+            }
+            .chat-section-content {
+                height: 70vh; /* Adjust height for smaller screens */
+            }
+        }
+
+        @media (max-width: 600px) {
+            .links-grid, .quick-links-grid {
+                grid-template-columns: repeat(1, 1fr); /* Single column on very small screens */
+                gap: 15px;
+            }
+            .link-button, .quick-link-item {
+                width: 100%; /* Full width for single column */
+                max-width: 200px; /* Limit max width for better appearance */
+                height: 90px; /* Slightly smaller height on very small screens */
+                font-size: 0.75em;
+            }
+            .link-button .icon, .quick-link-item .icon {
+                font-size: 1.8em;
+            }
+            .search-input-container {
+                width: 95%;
+            }
+            .search-button {
+                padding: 10px 15px;
+                font-size: 1em;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-  <button class="hamburger" onclick="toggleSidebar()">☰</button>
-  <div class="sidebar" id="sidebar">
-    <div class="logo">Expert Credit</div>
-    <button class="menu-btn active" onclick="show('links', this)">🔗 Ссылки</button>
-    <button class="menu-btn" onclick="show('search', this)">🔍 Поиск</button>
-    <button class="menu-btn" onclick="show('documents', this)">📎 Документы</button>
-    <button class="menu-btn" onclick="show('calendar', this)">📅 Календарь</button>
-    <button class="menu-btn" onclick="show('chat', this)">🤖 Чат</button>
-    <div class="theme-switch" onclick="toggleTheme()">🌓 Ilyar Arzuyev</div>
-  </div>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#links-section" class="active"><span class="icon"><i class="fas fa-link"></i></span><span class="text">Ссылки</span></a></li>
+                    <li><a href="#search-section"><span class="icon"><i class="fas fa-search"></i></span><span class="text">Поиск</span></a></li>
+                    <li><a href="#analytics-section"><span class="icon"><i class="fas fa-chart-line"></i></span><span class="text">Аналитика</span></a></li>
+                    <li><a href="#documents-section"><span class="icon"><i class="fas fa-file-alt"></i></span><span class="text">Документы</span></a></li>
+                    <li><a href="#chat-section"><span class="icon"><i class="fas fa-comments"></i></span><span class="text">Чат</span></a></li>
+                </ul>
+            </nav>
+            <div style="margin-top: auto; text-align: center; padding-top: 20px;">
+                <p style="font-size: 0.7em; color: var(--text-color-dimmed); opacity: 0.7;">© 2025</p>
+            </div>
+        </aside>
 
-  <div class="content">
-    <div class="header">
-      <div class="clock" id="clock"></div>
-      <h2 id="section-title">Ссылки</h2>
+        <main class="main-display">
+            <div class="header-info">
+                <div class="date-time" id="current-date-time"></div>
+                <div class="location">
+                    <i class="fas fa-map-marker-aldt" style="margin-right: 5px;"></i> Expert Credit
+                </div>
+            </div>
+
+            <div id="links-section" class="content-section active">
+                <h2>Ссылки</h2>
+                <div class="links-grid">
+                    <a href="MOP's.html" target="_blank" class="link-button">
+                        <span class="icon"><i class="fa-solid fa-headphones"></i></span>
+                        <span>МОП'ам</span>
+                    </a>
+                    <a href="https://expertcredit.amocrm.ru/todo/line/" target="_blank" class="link-button">
+                        <span class="icon"><i class="fa-solid fa-a"></i></span>
+                        <span>AMOcrm</span>
+                    </a>
+                    <a href="pdf.html" target="_blank" class="link-button">
+                        <span class="icon"><i class="fa-solid fa-calculator"></i></span>
+                        <span>Калькулятор (ипотечный)</span>
+                    </a>
+                    <a href="#" target="_blank" class="link-button">
+                        <span class="icon"><i class="fa-solid fa-user"></i></span>
+                        <span>Экспертам</span>
+                    </a>
+                    <a href="https://my.binotel.kz/" target="_blank" class="link-button">
+                        <span class="icon"><i class="fa-solid fa-phone-volume"></i></span>
+                        <span>Binotel</span>
+                    </a>
+                    <a href="otbasy.html" target="_blank" class="link-button">
+                        <span class="icon"><i class="fa-solid fa-calculator"></i></span>
+                        <span>Калькулятор (Отбасы)</span>
+                    </a>
+                    <a href="#" target="_blank" class="link-button">
+                        <span class="icon"><i class="fa-solid fa-info"></i></span>
+                        <span>beta</span>
+                    </a>
+                    <a href="#" target="_blank" class="link-button">
+                        <span class="icon"><i class="fa-solid fa-info"></i></span>
+                        <span>beta</span>
+                    </a>
+                    <a href="#" target="_blank" class="link-button">
+                        <span class="icon"><i class="fa-solid fa-info"></i></span>
+                        <span>beta</span>
+                    </a>
+                </div>
+            </div>
+
+            <div id="search-section" class="content-section">
+                <h2>Поиск</h2>
+                <div class="search-section-content">
+                    <div class="search-input-container">
+                        <input type="text" id="google-search-input" class="search-input" placeholder="Поиск в Google...">
+                        <button class="search-button" onclick="performGoogleSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quick-links-section">
+                    <h2>Быстрые ссылки</h2>
+                    <div class="quick-links-grid">
+                        <a href="https://enpf-otbasy.kz/" target="_blank" class="quick-link-item">
+                            <span class="icon"><i class="fa-solid fa-globe"></i></span>
+                            <span>enpf-otbasy.kz</span>
+                        </a>
+                        <a href="https://egov.kz/cms/ru" target="_blank" class="quick-link-item">
+                            <span class="icon"><i class="fa-solid fa-globe"></i></span>
+                            <span>egov.kz</span>
+                        </a>
+                        <a href="https://hcsbk.kz/ru/" target="_blank" class="quick-link-item">
+                            <span class="icon"><i class="fa-solid fa-globe"></i></span>
+                            <span>otbasy.kz</span>
+                        </a>
+                        <a href="https://www.bcc.kz/" target="_blank" class="quick-link-item">
+                            <span class="icon"><i class="fa-solid fa-globe"></i></span>
+                            <span>bcc.kz</span>
+                        </a>
+                        <a href="https://altynbank.kz/" target="_blank" class="quick-link-item">
+                            <span class="icon"><i class="fa-solid fa-globe"></i></span>
+                            <span>altynbank.kz</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analytics-section" class="content-section">
+                <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+                    <iframe src="https://docs.google.com/spreadsheets/d/1Hr7a48hh6uO7m-BXXSXOR78v8YtmnAoIT2wJ1NT_5Xk/edit?gid=2062193080#gid=2062193080"
+                            width="100%" height="110%" style="border: none; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    </iframe>
+                </div>
+            </div>
+
+            <div id="documents-section" class="content-section">
+                <h2>Документы</h2>
+                <div class="documents-section-content">
+                    <div class="search-input-container" style="margin-bottom: 20px;">
+                        <input type="text" id="document-search-input" class="search-input" placeholder="Поиск по документам...">
+                        <button class="search-button" onclick="filterDocuments()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+
+                    <ul class="file-list" id="file-list">
+                        <li class="file-item">
+                            <div class="file-info">
+                                <span class="file-icon"><i class="fas fa-file-pdf"></i></span>
+                                <span class="file-name">Чек лист.pdf</span>
+                            </div>
+                            <a href="chek.pdf" class="download-link" download>Скачать</a>
+                        </li>
+                        <li class="file-item">
+                            <div class="file-info">
+                                <span class="file-icon"><i class="fas fa-file-pdf"></i></span>
+                                <span class="file-name">AMOcrm Обучение.pdf</span>
+                            </div>
+                            <a href="AMOcrm.pdf" class="download-link" download>Скачать</a>
+                        </li>
+                        <li class="file-item">
+                            <div class="file-info">
+                                <span class="file-icon"><i class="fas fa-file-pdf"></i></span>
+                                <span class="file-name">Гайд.pdf</span>
+                            </div>
+                            <a href="guide.pdf" class="download-link" download>Скачать</a>
+                        </li>
+                        <li class="file-item">
+                            <div class="file-info">
+                                <span class="file-icon"><i class="fas fa-file-pdf"></i></span>
+                                <span class="file-name">Новые ставки.pdf</span>
+                            </div>
+                            <a href="новые ставки.pdf" class="download-link" download>Скачать</a>
+                        </li>
+                        <li class="file-item">
+                            <div class="file-info">
+                                <span class="file-icon"><i class="fas fa-file-excel"></i></span>
+                                <span class="file-name">Путь Клиента.xls</span>
+                            </div>
+                            <a href="Путь Клиента.xls" class="download-link" download>Скачать</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="chat-section" class="content-section">
+                <h2>Чат с ИИ</h2>
+                <div class="chat-section-content">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-message ai">
+                            <div class="avatar">ИИ</div>
+                            <div class="message-bubble">Привет! Я ваш ИИ-помощник. Задайте мне вопрос.</div>
+                        </div>
+                    </div>
+                    <div class="loading-indicator" id="loading-indicator">ИИ печатает...</div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" class="chat-input" placeholder="Написать сообщение..." />
+                        <button id="chat-send-button" class="chat-send-button">Отправить</button>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <div id="links" class="section active">
-      <div class="links-wrapper">
-      <h4 align="center"></h4><br>
-        <div class="links-cards top-links">
-          <a href="MOP's.html"><h3>МОП'ам</h3><p>Информация</p></a>
-          <a href="https://expertcredit.amocrm.ru/todo/line/" target="_blank"><h3>AMOcrm</h3><p>Открыть СРМ</p></a>
-          <a href="pdf.html"><h3>Калькулятор</h3><p>Ипотечный</p></a>
-        </div>
-        <br>
-        <div class="links-cards bottom-links">
-          <a href="specialist.html"><h3>Экспертам</h3><p>Информация</p></a>
-          <a href="https://my.binotel.kz/" target="_blank"><h3>Binotel</h3><p>Телефония</p></a>
-          <a href="otbasy.html"><h3>Калькулятор</h3><p>Отбасы</p></a>
-        </div>
-      </div>
-    </div>
+    <script>
+        function updateDateTime() {
+            const dateTimeElement = document.getElementById('current-date-time');
+            const now = new Date();
 
-    <div id="search" class="section">
-      <div class="search-box" style="display:flex;align-items:center;padding:20px;border-radius:var(--radius);background:var(--card-bg);box-shadow:0 2px 8px var(--shadow);">
-        <form method="GET" action="https://www.google.com/search" target="_blank" style="flex:1;display:flex;align-items:center;gap:10px;">
-          <input type="text" name="q" placeholder="Поиск в интернете..." style="flex:1;padding:12px;border:1px solid #ccc;border-radius:var(--radius);" />
-          <button type="submit" style="border:none;background:none;cursor:pointer;font-size:1.2rem;">🔎</button>
-        </form>
-      </div>
-      <div class="quick-links">
-        <a href="https://enpf-otbasy.kz/" target="_blank">enpf-otbasy.kz</a>
-        <a href="https://egov.kz/cms/ru" target="_blank">egov.kz</a>
-        <a href="https://hcsbk.kz/ru/" target="_blank">otbasy.kz</a>
-        <a href="https://www.bcc.kz/ru/" target="_blank">bcc.kz</a>
-        <a href="https://altynbank.kz/" target="_blank">altynbank.kz</a>
-      </div>
-    </div>
+            const optionsDate = { weekday: 'long', day: 'numeric', month: 'long' };
+            const formattedDate = now.toLocaleDateString('ru-RU', optionsDate);
 
-	<div id="documents" class="section">
-	  <ul class="documents-list">
-	    <li>
-	      <a href="chek.pdf" download="Чек лист.pdf">
-	        Чек лист.pdf
-	      </a>
-	    </li>
-	    <li>
-	      <a href="AmoCRM.pdf" download="AMOcrm Обучение.pdf">
-	        AMOcrm Обучение.pdf
-	      </a>
-	    </li>
-	    <li>
-	      <a href="guide.pdf" download="Гайд.pdf">
-	        Гайд.pdf
-	      </a>
-	    </li>
-	    <li>
-	      <a href="Путь Клиента.xls" download="Путь клиента.xls">
-	        Путь клиента.xls
-	      </a>
-	    </li>
-	    <li>
-	      <a href="новые ставки.pdf" download="Новые ставки.pdf">
-	        Новые ставки.pdf
-	      </a>
-	    </li>
-	  </ul>
-	</div>
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            const formattedTime = now.toLocaleTimeString('en-US', optionsTime);
 
-    <div id="calendar" class="section">
-      <div class="calendar-wrapper">
-        <iframe class="calendar-frame" src="https://docs.google.com/spreadsheets/d/1Hr7a48hh6uO7m-BXXSXOR78v8YtmnAoIT2wJ1NT_5Xk/edit?gid=2062193080#gid=2062193080" loading="lazy"></iframe>
-      </div>
-      <div class="btn-group">
-        <button onclick="window.open('https://docs.google.com/spreadsheets/d/1Hr7a48hh6uO7m-BXXSXOR78v8YtmnAoIT2wJ1NT_5Xk/edit?gid=2062193080#gid=2062193080', '_blank')">Открыть в окне</button>
-      </div>
-    </div>
-
-    <div id="chat" class="section">
-      <div class="chat-window" id="chatWindow"></div>
-      <div class="chat-input">
-        <input id="chatInput" type="text" placeholder="Написать сообщение..." />
-        <button onclick="sendMessage()">Отправить</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Переключение разделов и темы
-    function show(id, btn) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      document.getElementById('section-title').textContent = btn.textContent.trim();
-      document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.querySelector('.content').classList.toggle('no-scroll', id === 'calendar');
-    }
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('open');
-    }
-    function toggleTheme() {
-      document.body.classList.toggle('dark-mode');
-    }
-
-    // Часы
-    function updateClock() {
-      const now = new Date();
-      const opts = {
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
-        day: 'numeric', month: 'long', year: 'numeric'
-      };
-      document.getElementById('clock').textContent = now.toLocaleString('ru-RU', opts);
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // Подготовка OpenAI и загрузка базы знаний через Apps Script Web App
-	const part1 = "sk-proj-_YFadaOolQ3FRGVJdSoTbHSEk4YkAPOt-nDL-";
-	    const part2 = "j6cCqiBY_TvecjGCX2I8RtEargMUi9aP7VYq_T3BlbkFJ8Iztpw2";
-	    const part3 = "_KfmcwAs032X6z5xhwEE4VDkzud1dWNK9dsx90rlGPe";
-	    const part4 = "XETj7SEz3sKs3F-NR2UuU-EA";
-	    const OPENAI_API_KEY = part1 + part2 + part3 + part4;
-    const KB_URL = 'https://script.google.com/macros/s/AKfycbyufDTWoaq7FUNzZOi2NSUpUcu8K1QGYQ2eQy8vw0WF42MxJLoiS2WfgDmUmfFKIu_0NQ/exec'; // <-- замените на URL деплоя Apps Script
-
-    let knowledgeBase = '';
-    async function loadKnowledgeBase() {
-      try {
-        const res = await fetch(KB_URL);
-        if (!res.ok) throw new Error('Status ' + res.status);
-        knowledgeBase = await res.text();
-        console.log('База знаний загружена.');
-      } catch (err) {
-        console.error('Ошибка загрузки KB:', err);
-        appendMessage('gpt', '⚠️ Не удалось загрузить базу знаний.');
-      }
-    }
-    loadKnowledgeBase();
-
-    // Отправка сообщения в чат
-    function appendMessage(role, text) {
-      const win = document.getElementById('chatWindow');
-      const div = document.createElement('div');
-      div.textContent = text;
-      div.style.alignSelf = role === 'user' ? 'flex-end' : 'flex-start';
-      div.style.background = role === 'user' ? '#e1ffc7' : '#fff';
-      div.style.padding = '8px';
-      div.style.borderRadius = '6px';
-      div.style.margin = '4px 0';
-      win.appendChild(div);
-      win.scrollTop = win.scrollHeight;
-    }
-    async function sendMessage() {
-      const inp = document.getElementById('chatInput');
-      const text = inp.value.trim();
-      if (!text) return;
-      appendMessage('user', text);
-      inp.value = '';
-
-      const messages = [];
-      if (knowledgeBase) {
-        messages.push({ role: 'system', content: knowledgeBase });
-      } else {
-        messages.push({ role: 'system', content: 'База знаний недоступна.' });
-      }
-      messages.push({ role: 'user', content: text });
-
-      try {
-        const res = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + OPENAI_API_KEY
-          },
-          body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
-            messages
-          })
-        });
-        const data = await res.json();
-        if (data.choices?.[0]?.message?.content) {
-          appendMessage('gpt', data.choices[0].message.content);
-        } else {
-          console.error(data);
-          appendMessage('gpt', '⚠️ Ошибка ответа от модели.');
+            dateTimeElement.textContent = `${formattedDate}, ${formattedTime}`;
         }
-      } catch (err) {
-        console.error(err);
-        appendMessage('gpt', '⚠️ Ошибка связи с OpenAI API.');
-      }
-    }
-  </script>
+
+        // Function to perform Google search
+        function performGoogleSearch() {
+            const searchInput = document.getElementById('google-search-input');
+            const query = searchInput.value;
+            if (query) {
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+            }
+        }
+
+        // Add event listener for Enter key in Google search input
+        document.getElementById('google-search-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                performGoogleSearch();
+            }
+        });
+
+        // Function to filter documents
+        function filterDocuments() {
+            const searchInput = document.getElementById('document-search-input');
+            const filter = searchInput.value.toLowerCase();
+            const fileList = document.getElementById('file-list');
+            const fileItems = fileList.getElementsByTagName('li');
+
+            for (let i = 0; i < fileItems.length; i++) {
+                const fileName = fileItems[i].querySelector('.file-name').textContent;
+                if (fileName.toLowerCase().includes(filter)) {
+                    fileItems[i].style.display = 'flex';
+                } else {
+                    fileItems[i].style.display = 'none';
+                }
+            }
+        }
+
+        // Add event listener for Enter key in document search input
+        document.getElementById('document-search-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                filterDocuments();
+            }
+        });
+
+        // Chat functionality
+        const chatMessagesDiv = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const chatSendButton = document.getElementById('chat-send-button');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
+        // URL для загрузки базы знаний из Google Apps Script
+        // Убедитесь, что ваш Apps Script развернут как веб-приложение с доступом "Кто угодно"
+        // и возвращает чистый текст через ContentService.
+        const KB_URL = 'https://script.google.com/macros/s/AKfycbyufDTWoaq7FUNzZOi2NSUpUcu8K1QGYQ2eQy8vw0WF42MxJLoiS2WfgDmUmfFKIu_0NQ/exec';
+
+        let knowledgeBase = ''; // Будет содержать загруженную базу знаний
+        let chatConversationHistory = []; // Хранит только фактические реплики пользователя и ИИ для контекста
+
+        async function loadKnowledgeBase() {
+            try {
+                const res = await fetch(KB_URL);
+                if (!res.ok) {
+                    console.error('Ошибка загрузки базы знаний. Статус:', res.status, res.statusText);
+                    const errorText = await res.text();
+                    console.error('Текст ошибки:', errorText);
+                    throw new Error('Не удалось загрузить базу знаний. Проверьте URL и разрешения Apps Script.');
+                }
+                knowledgeBase = await res.text();
+                console.log('База знаний загружена:', knowledgeBase.substring(0, 100) + '...'); // Log first 100 chars
+            } catch (err) {
+                console.error('Ошибка загрузки базы знаний:', err);
+                displayMessage('⚠️ Не удалось загрузить базу знаний для ИИ. Ответы могут быть общими.', 'ai');
+            }
+        }
+
+        // Функция для отображения сообщений в чате
+        function displayMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', sender);
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.classList.add('avatar');
+            avatarDiv.textContent = sender === 'user' ? 'Вы' : 'ИИ';
+
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.classList.add('message-bubble');
+            bubbleDiv.textContent = message;
+
+            if (sender === 'user') {
+                messageDiv.appendChild(bubbleDiv);
+                messageDiv.appendChild(avatarDiv);
+            } else {
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(bubbleDiv);
+            }
+            chatMessagesDiv.appendChild(messageDiv);
+            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight; // Scroll to bottom
+        }
+
+        async function sendMessage() {
+            const userMessage = chatInput.value.trim();
+            if (userMessage === '') return;
+
+            displayMessage(userMessage, 'user');
+            chatInput.value = '';
+            loadingIndicator.style.display = 'block'; // Show loading indicator
+
+            // Добавляем текущее сообщение пользователя в историю диалога
+            chatConversationHistory.push({ role: "user", parts: [{ text: userMessage }] });
+
+            // Формируем полный промпт для Gemini, включая базу знаний и историю диалога
+            const contentsToSend = [
+                {
+                    role: "user",
+                    parts: [{ text: `Ты — ИИ-помощник. Отвечай на вопросы, используя следующую базу знаний. Если информации нет, сообщи, что у тебя нет такой информации или попроси уточнить запрос.
+База знаний:
+${knowledgeBase || "База знаний не загружена или недоступна. Извини, мои ответы могут быть общими."}` }]
+                },
+                ...chatConversationHistory // Добавляем всю историю диалога после системного промпта
+            ];
+
+            try {
+                const payload = { contents: contentsToSend };
+                const apiKey = ""; // Canvas автоматически предоставит API ключ
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const aiResponse = result.candidates[0].content.parts[0].text;
+                    displayMessage(aiResponse, 'ai');
+                    // Добавляем ответ ИИ в историю диалога
+                    chatConversationHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+                } else {
+                    displayMessage("Извините, я не смог получить ответ от ИИ. Попробуйте еще раз.", 'ai');
+                    console.error("Неожиданная структура ответа API:", result);
+                }
+            } catch (error) {
+                console.error("Ошибка вызова Gemini API:", error);
+                displayMessage("Произошла ошибка при получении ответа от ИИ. Пожалуйста, попробуйте позже.", 'ai');
+            } finally {
+                loadingIndicator.style.display = 'none'; // Hide loading indicator
+            }
+        }
+
+        chatSendButton.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+
+        // Function to handle sidebar navigation clicks
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.sidebar-nav li a');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            // Function to show a specific section and update active link
+            function showSection(sectionId) {
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(sectionId).classList.add('active');
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${sectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault(); // Prevent default link behavior
+
+                    const targetSectionId = this.getAttribute('href').substring(1); // Get section ID from href
+                    showSection(targetSectionId);
+                });
+            });
+
+            // Show the 'links-section' by default on load
+            showSection('links-section');
+            loadKnowledgeBase(); // Загружаем базу знаний при загрузке страницы
+        });
+
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    </script>
 </body>
 </html>
