@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Expert Credit</title>
+  <style>
+    /* Базовый сброс и стили */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      min-height: 100vh;
+      background-color: #f4f6f9;
+      color: #333;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    /* Тёмная тема */
+    .dark-theme {
+      background-color: #18191a;
+      color: #e4e6eb;
+    }
+    .dark-theme header h1 { color: #e4e6eb; }
+    .dark-theme .sidebar { background-color: #242526; }
+    .dark-theme .card, .dark-theme th, .dark-theme td {
+      background-color: #242526;
+      color: #e4e6eb;
+      border-color: #444;
+    }
+    .dark-theme th { background-color: #2a2b2e; }
+    
+    /* Сайдбар */
+    .sidebar {
+      background-color: #1c1e21;
+      width: 250px;
+      min-height: 100vh;
+      padding: 20px;
+      color: #fff;
+    }
+    .sidebar h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    .sidebar ul {
+      list-style: none;
+    }
+    .sidebar ul li {
+      margin-bottom: 15px;
+    }
+    .sidebar ul li a {
+      text-decoration: none;
+      color: #fff;
+      font-size: 18px;
+      padding: 10px;
+      display: block;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+      cursor: pointer;
+    }
+    .sidebar ul li a:hover,
+    .sidebar ul li a.active {
+      background-color: #343a40;
+    }
+    
+    /* Основной контент */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    header h1 {
+      font-size: 32px;
+    }
+    .theme-toggle {
+      background-color: white;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .theme-toggle:hover {
+      background-color: #343a40;
+    }
+    
+    /* Секции */
+    .section { 
+      display: none; 
+      flex: 1;
+      overflow-y: auto;
+    }
+    .section.active { display: block; }
+    /* Для секции настроек при активном состоянии устанавливаем flex-отображение */
+    #settings.active {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Карточки статистики */
+    .stats {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .card {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      flex: 1;
+      min-width: 250px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Файловый менеджер */
+    .file-manager-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .search-input {
+      padding: 8px;
+      width: 100%;
+      max-width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .file-item a {
+      text-decoration: none;
+      color: #1c1e21;
+    }
+    .favorite-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: #ff9800;
+    }
+    .favorite-btn.active {
+      color: #ff5722;
+    }
+    
+    /* Таблицы для сотрудников */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f1f1f1;
+    }
+    
+    /* Стили для чата (только в настройках) */
+    #chatContainer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-y: auto;
+    }
+    .chat-message {
+      max-width: 80%;
+      border-radius: 5px;
+      padding: 10px;
+      word-wrap: break-word;
+    }
+    .chat-message.user {
+      background-color: #e0f7fa;
+      align-self: flex-end;
+    }
+    .chat-message.ai {
+      background-color: #ffe0b2;
+      align-self: flex-start;
+    }
+    
+    .password-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+    .password-toggle {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+    
+    /* Стили для секции Календарь */
+    #calendar .calendar-buttons {
+      margin-bottom: 20px;
+    }
+    #calendar .calendar-buttons button {
+      margin-right: 10px;
+      padding: 10px 15px;
+      border: none;
+      background-color: #1c1e21;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #calendar .calendar-buttons button.active,
+    #calendar .calendar-buttons button:hover {
+      background-color: #343a40;
+    }
+	/* Добавляем в секцию стилей */
+	#calendarFrameContainer {
+	  display: flex;
+	  gap: 20px;
+	  flex-wrap: wrap;
+	  justify-content: center;
+	}
+
+	.calendar-item {
+	  flex: 1;
+	  min-width: 400px;
+	  max-width: 900px;
+	}
+
+	.calendar-item iframe {
+	  width: 100%;
+	  height: 700px;
+	}
+    .calendar-label {
+      margin-top: 5px;
+      font-weight: bold;
+    }
+	/* Стили для раздела заметок */
+	#notesSection {
+	  margin: 20px 0;
+	  padding: 15px;
+	  background-color: #fdfd96;
+	  border: 2px dashed #f4a261;
+	  border-radius: 10px;
+	}
+
+	#notesSection h3 {
+	  margin-bottom: 10px;
+	  font-size: 24px;
+	  color: #333;
+	}
+
+	/* Форма для добавления заметок */
+	#noteForm {
+	  display: flex;
+	  gap: 10px;
+	  margin-bottom: 20px;
+	}
+
+	#noteForm input {
+	  flex: 1;
+	  padding: 10px;
+	  font-size: 16px;
+	  border: 1px solid #ccc;
+	  border-radius: 5px;
+	}
+
+	#noteForm button {
+	  padding: 10px 20px;
+	  font-size: 16px;
+	  background-color: #f4a261;
+	  color: #fff;
+	  border: none;
+	  border-radius: 5px;
+	  cursor: pointer;
+	  transition: background-color 0.3s;
+	}
+
+	#noteForm button:hover {
+	  background-color: #e76f51;
+	}
+
+	/* Контейнер для заметок */
+	#notesContainer {
+	  display: flex;
+	  flex-wrap: wrap;
+	  gap: 15px;
+	}
+
+	/* Карточка заметки */
+	.note-card {
+	  background-color: #fffd82;
+	  width: 100%;
+	  min-height: 70px;
+	  padding: 15px;
+	  border: 1px solid #f4a261;
+	  border-radius: 10px;
+	  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+	  position: relative;
+	  word-wrap: break-word;
+	}
+
+	/* Текст заметки */
+	.note-card .note-text {
+	  font-size: 16px;
+	  margin-bottom: 10px;
+	}
+
+	/* Кнопки действий для заметки */
+	.note-card .note-actions {
+	  position: absolute;
+	  top: 5px;
+	  right: 5px;
+	}
+
+	.note-card .note-actions button {
+	  background: none;
+	  border: none;
+	  cursor: pointer;
+	  margin-left: 5px;
+	  font-size: 16px;
+	  color: #555;
+	  transition: color 0.3s;
+	}
+
+	.note-card .note-actions button:hover {
+	  color: #000;
+	}
+	/* Общий стиль */
+	        
+	      
+	        @keyframes gradientAnimation {
+	            0% { background: linear-gradient(135deg, #1e3c72, #2a5298); }
+	            100% { background: linear-gradient(135deg, #2a5298, #1e3c72); }
+	        }
+
+	        /* Контейнер поиска с эффектом стекла */
+	        .search-container {
+	            background: rgba(255, 255, 255, 0.1);
+	            backdrop-filter: blur(15px);
+	            padding: 30px;
+	            border-radius: 20px;
+	            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+	            text-align: center;
+	            transition: transform 0.3s ease, background 0.3s ease;
+	        }
+
+	        .search-container:hover {
+	            transform: translateY(-5px);
+	            background: rgba(255, 255, 255, 0.2);
+	        }
+
+	        /* Логотип */
+	        .logo {
+	            width: 120px;
+	            height: auto;
+	            margin-bottom: 15px;
+	        }
+
+	        h2 {
+	            margin-bottom: 15px;
+	            font-size: 26px;
+	            color: white;
+	            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	        }
+
+	        /* Поле ввода */
+	        input {
+	            width: 320px;
+	            padding: 14px;
+	            font-size: 18px;
+	            border: none;
+	            border-radius: 10px;
+	            outline: none;
+	            transition: all 0.3s ease;
+	            background: rgba(255, 255, 255, 0.3);
+	            box-shadow: inset 0px 4px 8px rgba(0, 0, 0, 0.2);
+	            color: black;
+	            text-align: left;
+	        }
+
+	        input::placeholder {
+	            color: rgba(255, 255, 255, 0.7);
+	        }
+
+	        input:focus {
+	            box-shadow: inset 0px 4px 12px rgba(0, 0, 0, 0.3);
+	            background: rgba(255, 255, 255, 0.5);
+	        }
+
+	       
+			#goog {
+			        background: linear-gradient(135deg, #6a11cb, #2575fc); /* Градиентный фон */
+			        padding: 50px 0;
+			        text-align: center;
+			        border-radius: 15px;
+			        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+			    }
+				.simple-buttons {
+				    margin-top: 30px;
+				    display: flex;
+				    gap: 15px;
+				    flex-wrap: wrap;
+				    justify-content: center;
+				    user-select: none; /* запрет выделения текста */
+				}
+
+				.simple-buttons button {
+				    background: transparent;
+				    border: 2px solid white;
+				    padding: 10px 20px;
+				    border-radius: 12px;
+				    font-size: 16px;
+				    font-weight: 500;
+				    color: white;
+				    cursor: pointer;
+				    transition: all 0.3s ease;
+				    user-select: none;
+				}
+
+				.simple-buttons button:hover {
+				    background-color: rgba(255, 255, 255, 0.15);
+				    transform: translateY(-2px);
+				}
+
+				.simple-buttons button:active {
+				    transform: scale(0.96);
+				}
+				.clock {
+				    margin-top: 20px;
+				    font-size: 18px;
+				    color: white;
+				    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+				}
+				
+				.qr-section {
+				    text-align: center;
+				    background: rgba(255, 255, 255, 0.1); /* Легкий фон */
+				    padding: 20px;
+				    border-radius: 10px;
+				    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+					
+				}
+				.qr-container {
+				    display: flex;
+				    justify-content: center;
+				    align-items: center;
+				    height: 100vh; /* Занимает всю высоту экрана */
+					width: 700px;
+				}
+
+				.qr-section input {
+				    padding: 10px;
+				    width: 80%;
+				    margin: 10px 0;
+				    border-radius: 8px;
+				    border: none;
+				    outline: none;
+				    background: rgba(255,255,255,0.3);
+				    color: white;
+				    text-align: center;
+				}
+
+				.qr-section button {
+				    padding: 10px 20px;
+				    border: none;
+				    background-color: #ff7e5f;
+				    color: white;
+				    border-radius: 8px;
+				    cursor: pointer;
+				}
+
+				.qr-section button:hover {
+				    background-color: #feb47b;
+				}
+
+				.calendar-section div {
+				    color: white;
+				    font-size: 14px;
+				    text-align: center;
+					
+				}
+				.call-btn {
+				  background: #4CAF50;
+				  color: white;
+				  border: none;
+				  padding: 8px 15px;
+				  border-radius: 5px;
+				  cursor: pointer;
+				  transition: background 0.3s;
+				}
+
+				.call-btn:hover {
+				  background: #45a049;
+				}
+				.note-actions button {
+				    background: none;
+				    border: none;
+				    cursor: pointer;
+				    margin-left: 5px;
+				    font-size: 16px;
+				    color: #555;
+				    transition: color 0.3s;
+				}
+
+				.note-actions button:hover {
+				    color: #000;
+				}
+
+				/* Иконка копирования */
+				.copy-note {
+				    margin-right: auto; /* Размещаем слева от других кнопок */
+				}
+  </style>
+  <script>
+    // Функция для открытия ссылки с запросом пароля
+    function openLink(url) {
+      let password = prompt("Введите пароль:");
+      let correctPassword = "1234"; // Замените на свой пароль
+
+      if (password === correctPassword) {
+        window.open(url, "_blank"); // Открывает в новой вкладке
+      } else {
+        alert("Неверный пароль! Доступ запрещён.");
+      }
+      return false; // Блокирует переход по ссылке
+    }
+  </script>
+</head>
+<body>
+  <!-- Сайдбар с навигацией -->
+  <div class="sidebar">
+    <h2 align="center">Expert Credit</h2>
+    <hr>
+    <ul>
+      <li><a href="#" class="nav-link active" data-section="dashboard">🏠 &nbsp;&nbsp;&nbsp;&nbsp;Главная</a></li>
+	   <li><a href="#" class="nav-link" data-section="goog">🌐 &nbsp;&nbsp;&nbsp;&nbsp;Google</a></li>
+      <li><a href="#" class="nav-link" data-section="files">📁 &nbsp;&nbsp;&nbsp;&nbsp;Файлы</a></li>
+      <li><a href="#" class="nav-link" data-section="employees">👥 &nbsp;&nbsp;&nbsp;&nbsp;Сотрудники</a></li>
+      <li><a href="#" class="nav-link" data-section="reports">📊 &nbsp;&nbsp;&nbsp;&nbsp;График</a></li>
+      <li><a href="#" class="nav-link" data-section="calendar">📅 &nbsp;&nbsp;&nbsp;&nbsp;Календарь</a></li>
+      <li><a href="#" class="nav-link" data-section="settings">🤖 &nbsp;&nbsp;&nbsp;&nbsp;Чат с ИИ</a></li>
+    </ul>
+  </div>
+  
+  <!-- Основной контент -->
+  <div class="main-content">
+    <header>
+      <h1 id="sectionTitle">Главная</h1>
+      <button class="theme-toggle" id="themeToggle"></button>
+    </header>
+    
+    <!-- Секция: Дашборд -->
+   <section id="dashboard" class="section active">
+        <p align="center">Добро пожаловать в Dashboard. Здесь отображается ключевая информация компании.</p>
+        <br><br>
+        <div class="stats">
+          <a class="card" href="Call_center.html">
+            ☎️ <br><br><strong>МОП'ам</strong><br>Информация
+          </a>
+          <a class="card" href="specialist.html">
+            👩🏻‍💼👨🏻‍💼 <br><br><strong>Экспертам</strong><br>Информация
+          </a>
+       
+      
+          <br> 
+        </div>
+
+        <div class="stats">
+            <a class="card" href="pdf.html">
+              📱➕➖ <br><br><strong>Калькулятор</strong><br>Ипотечный (PDF-док)
+            </a>
+      
+         <a class="card" href="otbasy.html">
+           🏠➕➖ <br><br><strong>Калькулятор</strong><br>Отбасы
+         </a>
+         </div>
+   
+      <div class="stats">
+             <a class="card" href="https://expertcredit.amocrm.ru/todo/line/" target="_blank">
+               💻 <br><br><strong>AMOcrm</strong><br>Открыть
+             </a>
+             <a class="card" href="https://my.binotel.kz" target="_blank">
+               🎧 <br><br><strong>Binotel</strong><br>Открыть
+             </a>
+        </div>
+        <br><br>
+      </section>
+    
+    <!-- Секция: Файлы (Файловый менеджер) -->
+    <section id="files" class="section">
+      <div class="file-manager-controls">
+        <input type="text" id="fileSearch" class="search-input" placeholder="Поиск файла...">
+        <button id="toggleFavorites">Показать избранное</button>
+      </div>
+      <div id="filesList">
+        <!-- Файлы заполняются JS -->
+      </div>
+    </section>
+    
+    <!-- Секция: Сотрудники -->
+    <section id="employees" class="section">
+      <input type="text" id="employeeSearch" class="search-input" placeholder="Поиск сотрудника...">
+      <table id="employeesTable">
+        <thead>
+          <tr>
+            <th>ФИО</th>
+            <th>Должность</th>
+            <th>Отдел</th>
+            <th>Сотовый номер</th>
+		    <th>Действия</th> <!-- Новая колонка -->
+		    <th>Почта</th> <!-- Новая колонка -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Данные заполняются JS -->
+        </tbody>
+      </table>
+	  <!-- Модальное окно для QR-кода -->
+	  <div class="modal-overlay" id="qrModalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+	    <div class="qr-modal" style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+	      <h3>Отсканируйте для звонка</h3>
+	      <canvas id="phoneQR"></canvas>
+	      <button onclick="closeQRModal()" style="margin-top: 15px; padding: 8px 20px;">Закрыть</button>
+	    </div>
+	  </div>
+    </section>
+    
+    <!-- Секция: Отчёты -->
+    <section id="reports" class="section">
+      <h2></h2>
+      <iframe src="https://docs.google.com/spreadsheets/d/1174R6jPHDq2i1piz7F2vHfhwx4cfn4BhJ0pvwA2G3U8/edit?usp=sharing" width="100%" height="92%"></iframe>
+      <br><br>
+      <a class="card" href="https://docs.google.com/spreadsheets/d/1174R6jPHDq2i1piz7F2vHfhwx4cfn4BhJ0pvwA2G3U8/edit?pli=1&gid=1564299646#gid=1564299646" target="_blank">
+        <strong>Развернуть</strong>
+      </a>&nbsp;&nbsp;&nbsp;
+      <a class="card" href="https://meet.google.com/landing?pli=1">
+        <strong>Online-встреча</strong>
+      </a>
+    </section>
+    
+    <!-- Секция: Настройки (Чат с ИИ) -->
+    <section id="settings" class="section">
+      <h2></h2>
+      <div id="chatContainer">
+        <!-- При открытии секции будет выведен минимальный промпт -->
+      </div>
+      <form id="chatForm" style="margin-top: 10px; display: flex;">
+        <input type="text" id="chatInput" placeholder="Введите сообщение..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" required>
+        <button type="submit" style="margin-left: 10px; padding: 10px 20px; border: none; background-color: #1c1e21; color: #fff; border-radius: 5px; cursor: pointer;">Отправить</button>
+      </form>
+    </section>
+    
+	
+       <!-- Секция: Поисковик -->
+       <section id="goog" class="section">
+    <div class="search-container">
+           <!-- Логотип компании (замени "logo.png" на свой логотип) -->
+           <img src="logo-default-480x80.png" alt="Логотип компании" class="logo">
+        
+           <h2></h2>
+         
+           <input type="text" id="searchQuery" placeholder="Введите запрос">
+           <br>
+		   <!-- Кнопки-ссылки в минималистичном стиле -->
+		   <div class="simple-buttons">
+		       <button onclick="openLink('https://enpf-otbasy.kz')">enpf-otbasy</button>
+		       <button onclick="openLink('https://egov.kz/cms/ru')">egov.kz</button>
+		       <button onclick="openLink('https://hcsbk.kz/ru/')">otbasy</button>
+		       <button onclick="openLink('https://www.bcc.kz/kz/')">bcc.kz</button>
+		       <button onclick="openLink('https://altynbank.kz')">altynbank.kz</button>
+		   </div>
+		   <br><br><br><br>
+		   
+		   <div id="clock" class="clock"></div>
+		   
+		   
+       </div>
+	   <br><br>
+	   
+	   <!-- QR Генератор -->
+	   <div id="cl" class="clock">
+	       <h3>QR-код (открыть с телефона)</h3>
+	       <input type="text" id="qrInput" placeholder="Введите текст или ссылку">
+		   <br>
+	       <button onclick="generateQR()">Создать QR</button>
+	       <br>
+	       <canvas id="qrCanvas"></canvas>
+	   </div>
+
+	   
+       </section>
+	
+	
+	
+    <!-- Секция: Календарь -->
+    <section id="calendar" class="section">
+      <div class="calendar-buttons">
+        <button class="calendar-button" data-type="kanat">Канат Б</button>
+        <button class="calendar-button" data-type="experts">Эксперты</button>
+      </div> 
+	  
+      <div id="calendarFrameContainer">
+        <!-- Здесь будут отображаться iframe(-ы) в зависимости от выбранной кнопки -->
+      </div>
+	  
+ <!-- Раздел для заметок -->
+  <div id="notesSection">
+    <h3>Мои заметки</h3>
+    <form id="noteForm">
+      <input type="text" id="noteInput" placeholder="Новая заметка" required>
+      <button type="submit">Добавить</button>
+    </form>
+    <div id="notesContainer"></div>
+  </div>
+    </section>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script>
+    let correctPassword = "1234"; // Ваш пароль
+    let currentUrl = '';
+    let passwordModal = document.getElementById('passwordModal');
+    let overlay = document.getElementById('overlay');
+
+    function openLink(url) {
+      currentUrl = url;
+      passwordModal.style.display = 'block';
+      overlay.style.display = 'block';
+      return false;
+    }
+
+    function togglePassword() {
+      let passwordInput = document.getElementById('passwordInput');
+      passwordInput.type = document.getElementById('showPassword').checked ? 'text' : 'password';
+    }
+
+    function submitPassword() {
+      let password = document.getElementById('passwordInput').value;
+      if(password === correctPassword) {
+        window.open(currentUrl, "_blank");
+      } else {
+        alert("Неверный пароль! Доступ запрещён.");
+      }
+      closeModal();
+    }
+
+    function cancelPassword() {
+      closeModal();
+    }
+
+    function closeModal() {
+      passwordModal.style.display = 'none';
+      overlay.style.display = 'none';
+      document.getElementById('passwordInput').value = '';
+      document.getElementById('showPassword').checked = false;
+      togglePassword();
+    }
+
+    // Проверка статуса входа и перенаправление, если не авторизован
+    if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+      window.location.href = "index.html";
+    }
+    
+    /*******************/
+    /* Переключатель темы */
+    /*******************/
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+    });
+    
+    /*******************/
+    /* Навигация секций */
+    /*******************/
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
+    const sectionTitle = document.getElementById('sectionTitle');
+    
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        const target = link.getAttribute('data-section');
+        sections.forEach(section => {
+          section.classList.remove('active');
+          if (section.id === target) {
+            section.classList.add('active');
+            sectionTitle.textContent = link.textContent.trim();
+            // Если выбраны настройки, выводим минимальный промпт, если чат пустой
+            if(target === "settings" && document.getElementById('chatContainer').childElementCount === 0){
+              appendMessage('ai', minimalPrompt);
+            }
+          }
+        });
+      });
+    });
+    
+    /*******************/
+    /* Секция: Сотрудники */
+    /*******************/
+    const employeesData = [
+      { id: 1, fullName: 'Канат Дарибекович', position: 'Директор', department: 'Филиал', mobile: '+ 7 707 671 11 88', email: 'kanatgold91@gmail.com' },
+      { id: 2, fullName: 'Канат Имангалиулы', position: 'Главный эксперт', department: 'Филиал', mobile: '+ 7 702 270 07 13', email: 'imangaliulikanat@gmail.com' },
+      { id: 3, fullName: 'Жадыра А', position: 'Эксперт', department: 'Филиал', mobile: '+ 7 707 521 31 09', email: 'jadok09@gmail.com' },
+      { id: 3, fullName: 'Жадыра Б', position: 'Эксперт', department: 'Филиал', mobile: '+ 7 777 982 82 89', email: 'zadyraakadiloava@gmail.com' },
+      { id: 4, fullName: 'Салтанат Нурбековна', position: 'РОП', department: 'Филиал', mobile: '+ 7 707 558 87 97', email: 'nurbeksaltanat21@gmail.com' },
+      { id: 5, fullName: 'Диана', position: 'SMM', department: 'Филиал', mobile: '+ 7 708 164 15 98', email: '' },
+      { id: 6, fullName: 'Бауыржан К.', position: 'МОП', department: 'Филиал', mobile: '+ 7 705 799 98 53', email: 'work.bauyrzhan@gmail.com' },
+      { id: 7, fullName: 'Тимур А.', position: 'МОП', department: 'Филиал', mobile: '+ 7 700 258 29 32', email: 'tima.askarbekov05@gmail.com' },
+      { id: 8, fullName: 'Катерина.', position: 'SMM', department: 'Филиал', mobile: '+ 7 707 321 86 70', email: '' },
+      { id: 9, fullName: 'Евгений Шот.', position: '-', department: 'Филиал', mobile: '+ 7 707 133 99 06', email: '' },
+      { id: 10, fullName: 'Ильяр Даниярович', position: 'Тех. отдел', department: 'Филиал', mobile: '+ 7 708 217 13 13', email: 'iljarz40@gmail.com' }
+    ];
+    const employeesTableBody = document.querySelector('#employeesTable tbody');
+	function renderEmployees(filter = '') {
+	  employeesTableBody.innerHTML = '';
+	  const filtered = employeesData.filter(emp =>
+	    emp.fullName.toLowerCase().includes(filter.toLowerCase()) ||
+	    emp.position.toLowerCase().includes(filter.toLowerCase()) ||
+	    emp.department.toLowerCase().includes(filter.toLowerCase()) ||
+	    emp.mobile.includes(filter)
+	  );
+  
+	  filtered.forEach(emp => {
+	    const cleanPhone = emp.mobile.replace(/[+\s]/g, ''); // Очищаем номер для tel:
+	    employeesTableBody.innerHTML += `
+	      <tr>
+	        <td>${emp.fullName}</td>
+	        <td>${emp.position}</td>
+	        <td>${emp.department}</td>
+	        <td>${emp.mobile}</td>
+	        <td>
+	          <button class="call-btn" onclick="generatePhoneQR('${cleanPhone}')">
+	            📞 Позвонить
+	          </button>
+ </td>
+        <td>${emp.email || ''}</td> <!-- Здесь можно заполнить почту позже -->
+      </tr>
+	        </td>
+	      </tr>
+	    `;
+	  });
+	}
+    renderEmployees();
+    document.getElementById('employeeSearch').addEventListener('input', (e) => {
+      renderEmployees(e.target.value);
+    });
+	function generatePhoneQR(phoneNumber) {
+	  const qrModal = document.getElementById('qrModalOverlay');
+	  const qrCanvas = document.getElementById('phoneQR');
+  
+	  // Очищаем предыдущий QR-код
+	  qrCanvas.width = 200;
+	  qrCanvas.height = 200;
+  
+	  new QRious({
+	    element: qrCanvas,
+	    value: `tel:${phoneNumber}`,
+	    size: 200,
+	    background: 'white',
+	    foreground: 'black'
+	  });
+  
+	  qrModal.style.display = 'flex';
+	}
+
+	function closeQRModal() {
+	  document.getElementById('qrModalOverlay').style.display = 'none';
+	}
+    /*******************/
+    /* Секция: Файлы (Файловый менеджер) */
+    /*******************/
+    let filesData = [
+      { id: 1, name: 'Чек лист.pdf', url: 'chek.pdf' },
+      { id: 2, name: 'AMOcrm Обучение.pdf', url: 'AmoCRM.pdf' },
+      { id: 3, name: 'Путь клиента.xls', url: 'Путь Клиента.xls' },
+      { id: 4, name: 'Гайд.pdf', url: 'guide.pdf' },
+      { id: 5, name: 'Новые ставки.pdf', url: 'новые ставки.pdf' }
+    ];
+    const FAVORITES_KEY = 'favoriteFiles';
+    function getFavoriteFiles() {
+      const favs = localStorage.getItem(FAVORITES_KEY);
+      return favs ? JSON.parse(favs) : [];
+    }
+    function setFavoriteFiles(favs) {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+    }
+    let favoriteFiles = getFavoriteFiles();
+    const filesList = document.getElementById('filesList');
+    let showFavoritesOnly = false;
+    function renderFiles(filter = '') {
+      filesList.innerHTML = '';
+      let filteredFiles = filesData.filter(file =>
+        file.name.toLowerCase().includes(filter.toLowerCase())
+      );
+      if (showFavoritesOnly) {
+        filteredFiles = filteredFiles.filter(file => favoriteFiles.includes(file.id));
+      }
+      filteredFiles.forEach(file => {
+        const isFav = favoriteFiles.includes(file.id);
+        const fileItem = document.createElement('div');
+        fileItem.classList.add('file-item');
+        fileItem.innerHTML = `
+          <span><a href="${file.url}" download>${file.name}</a></span>
+          <button class="favorite-btn ${isFav ? 'active' : ''}" data-id="${file.id}">&#9733;</button>
+        `;
+        filesList.appendChild(fileItem);
+      });
+    }
+    renderFiles();
+    document.getElementById('fileSearch').addEventListener('input', (e) => {
+      renderFiles(e.target.value);
+    });
+    document.getElementById('toggleFavorites').addEventListener('click', () => {
+      showFavoritesOnly = !showFavoritesOnly;
+      document.getElementById('toggleFavorites').textContent = showFavoritesOnly ? 'Показать все файлы' : 'Показать избранное';
+      renderFiles(document.getElementById('fileSearch').value);
+    });
+    filesList.addEventListener('click', (e) => {
+      if (e.target.classList.contains('favorite-btn')) {
+        const fileId = parseInt(e.target.getAttribute('data-id'));
+        if (favoriteFiles.includes(fileId)) {
+          favoriteFiles = favoriteFiles.filter(id => id !== fileId);
+          e.target.classList.remove('active');
+        } else {
+          favoriteFiles.push(fileId);
+          e.target.classList.add('active');
+        }
+        setFavoriteFiles(favoriteFiles);
+        if (showFavoritesOnly) {
+          renderFiles(document.getElementById('fileSearch').value);
+        }
+      }
+    });
+    
+    /*******************/
+    /* Секция: Чат с ИИ (настройки) */
+    /*******************/
+    // Минимальный промпт для ИИ
+    const minimalPrompt = "Хэй, привеееет! Задай мне свой вопрос и я постараюсь ответить тебе ))";
+    
+    // API-ключ OpenAI (разбивка для примера)
+    const part1 = "sk-proj--epHKZsTAVdhTN_Y7VLXfvTGdHIYei";
+    const part2 = "_C3x9MGy4Yt7nMqsaFKFAex7qVrIzCL9fn09zK5gER9";
+    const part3 = "MT3BlbkFJ3gXzYqMRG5JDSI1SLoHADZVb240NTP3Q";
+    const part4 = "AwuyW3aaZ2R4Sn5DYp07OwG6aGfuRwml2CthKnH_IA";
+    const API_KEY = part1 + part2 + part3 + part4;
+    
+    // Функция для добавления сообщений в чат
+    function appendMessage(sender, text) {
+      const chatContainer = document.getElementById('chatContainer');
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('chat-message', sender);
+      messageDiv.textContent = text;
+      chatContainer.appendChild(messageDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    // Обработка отправки сообщения
+    document.getElementById('chatForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      // Вывод сообщения пользователя
+      appendMessage('user', message);
+      input.value = '';
+      
+      // Запрос к API OpenAI для получения ответа от GPT-3.5-turbo
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${API_KEY}`
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              { role: "system", content: "Ты AI-ассистент Expert Credit. Отвечай креативно и эмоционально, используя современный стиль общения. Максимально 3 предложения. Поддерживай дружеский тон с элементами профессиональной консультации. Используй смайлики под контекст сообщения которое ты отправляешь. Смайлики должны быть в каждом сообщении" },
+              { role: "user", content: message }
+            ]
+          })
+        });
+        const data = await response.json();
+        const aiMessage = data.choices && data.choices[0] && data.choices[0].message
+          ? data.choices[0].message.content.trim()
+          : "Извините, произошла ошибка.";
+        appendMessage('ai', aiMessage);
+      } catch (error) {
+        console.error("Ошибка обращения к API:", error);
+        appendMessage('ai', "Произошла ошибка при обращении к API.");
+      }
+    });
+    
+    // Если сразу открыты настройки, выводим минимальный промпт
+    window.addEventListener('load', () => {
+      const settingsSection = document.getElementById('settings');
+      if (settingsSection.classList.contains('active') && document.getElementById('chatContainer').childElementCount === 0) {
+        appendMessage('ai', minimalPrompt);
+      }
+    });
+    
+    /*******************/
+    /* Секция: Календарь */
+    /*******************/
+    const calendarButtons = document.querySelectorAll('#calendar .calendar-button');
+    const calendarFrameContainer = document.getElementById('calendarFrameContainer');
+    
+	// Секция: Календарь
+	calendarButtons.forEach(button => {
+	  button.addEventListener('click', () => {
+	    calendarButtons.forEach(btn => btn.classList.remove('active'));
+	    button.classList.add('active');
+    
+	    const type = button.getAttribute('data-type');
+	    if (type === 'kanat') {
+	      calendarFrameContainer.innerHTML = `
+	        <div class="calendar-item">
+<iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FAlmaty&showPrint=0&mode=WEEK&src=a2FuYXRnb2xkOTFAZ21haWwuY29t&src=amFucXVjb2dlMzVsanY0ZTdyamMzcWpvYTRua2lzc3RAaW1wb3J0LmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23D50000&color=%23EF6C00" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+	          <div class="calendar-label">Канат Дарибекович</div>
+	        </div>
+	      `;
+	    } else if (type === 'experts') {
+	      calendarFrameContainer.innerHTML = `
+	       <div class="calendar-item">
+			<iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Asia%2FAlmaty&showPrint=0&mode=WEEK&src=ZmExNmIyOTU0OWMzOWVmMzA5YTVkYzA3MzI5ZGZhNWJhMTk3NjYwOGM3NjdhZTg0MjJjNmZjOWQ0NTllOTQwZkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23F4511E" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+
+	          <div class="calendar-label">Канат И.</div>
+	        </div>
+	        <div class="calendar-item">
+<iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Asia%2FAlmaty&showPrint=0&mode=WEEK&src=amFkb2swOUBnbWFpbC5jb20&src=ZTNhNzlhN2I3MTgzY2UwYjQ5MzhjMzdiNGNmZjFmZjk3NWQwY2NkNTYxMTdkZDJjMGZkN2Y5ZGIyZDY4M2UzOUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=cnUua3ojaG9saWRheUBncm91cC52LmNhbGVuZGFyLmdvb2dsZS5jb20&src=ZmFtaWx5MTAxNjQwNjEyMDU1Nzg0NjYzNTFAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&color=%23039BE5&color=%23B39DDB&color=%230B8043&color=%23AD1457" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+
+	          <div class="calendar-label">Жадыра А.</div>
+	        </div>
+	        <div class="calendar-item">
+<iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Asia%2FAlmaty&showPrint=0&mode=WEEK&src=emFkeXJhYWthZGlsb2F2YUBnbWFpbC5jb20&src=MDY3ODc1YWQxMDlhOWJkYTk4NGRjMTE3YTg3OGJkYmU3NWY0YWM5MzE2NjFhZDcwNThjZWZlNGE5ZjhkYzg1NEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=cnUua3ojaG9saWRheUBncm91cC52LmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23039BE5&color=%23009688&color=%230B8043" style="border:solid 1px #777" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+	          <div class="calendar-label">Жадыра Б.</div>
+	        </div>
+	      `;
+	    }
+	  });
+	});
+	// Ключ для хранения заметок в localStorage
+	const NOTES_KEY = 'calendarNotes';
+
+	// Функция для загрузки заметок из localStorage
+	function loadNotes() {
+	  const notes = localStorage.getItem(NOTES_KEY);
+	  return notes ? JSON.parse(notes) : [];
+	}
+
+	// Функция для сохранения заметок в localStorage
+	function saveNotes(notes) {
+	  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+	}
+
+	// Функция для отрисовки заметок с улучшенным визуалом
+	function renderNotes() {
+	  const notesContainer = document.getElementById('notesContainer');
+	  const notes = loadNotes();
+	  notesContainer.innerHTML = '';
+  
+	  notes.forEach(note => {
+	    const card = document.createElement('div');
+	    card.classList.add('note-card');
+	    card.dataset.id = note.id;
+    
+	    card.innerHTML = `
+<div class="note-actions">
+    <button class="copy-note" title="Копировать">📋</button>
+    <button class="edit-note" title="Редактировать">✏️</button>
+    <button class="delete-note" title="Удалить">❌</button>
+</div>
+	      <div class="note-text">${note.text}</div>
+	    `;
+	    notesContainer.appendChild(card);
+	  });
+	}
+
+	// Обработчик добавления заметки
+	document.getElementById('noteForm').addEventListener('submit', function(e) {
+	  e.preventDefault();
+	  const input = document.getElementById('noteInput');
+	  const text = input.value.trim();
+	  if (!text) return;
+  
+	  const notes = loadNotes();
+	  const newNote = {
+	    id: Date.now(), // уникальный идентификатор
+	    text: text
+	  };
+	  notes.push(newNote);
+	  saveNotes(notes);
+	  renderNotes();
+	  input.value = '';
+	});
+
+	// Делегирование событий для редактирования и удаления заметок
+	document.getElementById('notesContainer').addEventListener('click', function(e) {
+	    const card = e.target.closest('.note-card');
+	    if (!card) return;
+	    const noteId = parseInt(card.dataset.id);
+	    let notes = loadNotes();
+
+  
+	  // Удаление заметки
+	  if (e.target.classList.contains('delete-note')) {
+	    notes = notes.filter(note => note.id !== noteId);
+	    saveNotes(notes);
+	    renderNotes();
+	  }
+  
+	  // Редактирование заметки
+	  if (e.target.classList.contains('edit-note')) {
+	    const currentText = card.querySelector('.note-text').textContent;
+	    const newText = prompt("Редактировать заметку:", currentText);
+	    if (newText !== null && newText.trim() !== '') {
+	      notes = notes.map(note => note.id === noteId ? { ...note, text: newText.trim() } : note);
+	      saveNotes(notes);
+	      renderNotes();
+	    }
+	  }
+	  if (e.target.classList.contains('copy-note')) {
+	         const text = card.querySelector('.note-text').textContent;
+	         navigator.clipboard.writeText(text)
+	             .then(() => alert('Текст скопирован!'))
+	             .catch(err => console.error('Ошибка копирования:', err));
+	         return;
+	     }
+	});
+
+	// При загрузке страницы отрисовываем заметки
+	window.addEventListener('load', renderNotes);
+	
+    function search() {
+        let query = document.getElementById("searchQuery").value;
+        if (query.trim() !== "") {
+            let searchUrl = "https://www.google.com/search?q=" + encodeURIComponent(query);
+            window.open(searchUrl, "_blank");
+        }
+    }
+
+    // Добавляем обработчик события для нажатия клавиши Enter
+    document.getElementById("searchQuery").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            search();
+        }
+    });
+
+    function openLink(url) {
+        window.open(url, '_blank');
+    }
+	
+	setInterval(() => {
+	    const now = new Date();
+	    document.getElementById("clock").textContent =
+	        now.toLocaleString("ru-RU", { hour12: false });
+	}, 1000);
+	
+	function generateQR() {
+	        const input = document.getElementById("qrInput").value;
+	        const qr = new QRious({
+	            element: document.getElementById("qrCanvas"),
+	            value: input,
+	            size: 150,
+	        });
+	    }
+
+	    // Мини-календарь
+	    function renderMiniCalendar() {
+	        const container = document.getElementById("miniCalendar");
+	        const now = new Date();
+	        const monthNames = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
+	        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+	        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+	        const today = now.getDate();
+
+	        let html = `<strong>${monthNames[now.getMonth()]} ${now.getFullYear()}</strong><br><div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:5px;">`;
+
+	        const days = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+	        for (let d of days) html += `<div><b>${d}</b></div>`;
+
+	        let pad = firstDay === 0 ? 6 : firstDay - 1;
+	        for (let i = 0; i < pad; i++) html += `<div></div>`;
+
+	        for (let day = 1; day <= daysInMonth; day++) {
+	            let isToday = day === today ? 'style="background:#ff7e5f;color:white;border-radius:50%;"' : "";
+	            html += `<div ${isToday}>${day}</div>`;
+	        }
+
+	        html += `</div>`;
+	        container.innerHTML = html;
+	    }
+
+	    renderMiniCalendar();
+  </script>
+	
+</body>
+</html>

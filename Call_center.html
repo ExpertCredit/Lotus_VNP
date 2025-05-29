@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Expert Credit</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #e8f4ff;
+    }
+  </style>
+</head>
+<body>
+
+<h2></h2>
+<table id="sheetTable"></table>
+
+<script>
+  // Замените на свои параметры:
+  const sheetId = "1phiarzwfQ3IVOfo43N3nhTt0iDL6dWHCkghmOvIuAWs";
+  const sheetName = "Лист1";
+  const apiKey = "AIzaSyCQjribXYsn26hdnIwgm0h9Cg7TysjyWg4"; // Ваш API ключ
+
+  fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?includeGridData=true&key=${apiKey}`)
+    .then(response => response.json())
+    .then(data => {
+      // Выбираем нужный лист по имени (если не найден – первый лист)
+      const sheet = data.sheets.find(s => s.properties.title === sheetName) || data.sheets[0];
+      const merges = sheet.merges || [];
+      const gridData = sheet.data[0];
+      const rowData = gridData.rowData || [];
+      const rowMeta = gridData.rowMetadata || [];
+      const colMeta = gridData.columnMetadata || [];
+
+      // Формируем список видимых (активных) строк: если для строки не указан hiddenByUser или он false
+      const visibleRows = [];
+      for (let i = 1; i < rowData.length; i++) {
+        const meta = rowMeta[i];
+        if (!meta || meta.hiddenByUser !== true) {
+          visibleRows.push(i);
+        }
+      }
+
+      // Определяем общее число столбцов по данным или метаданным
+      const totalCols = Math.max(colMeta.length, ...rowData.map(row => row.values ? row.values.length : 0));
+      // Формируем список видимых (активных) столбцов:
+      let visibleCols = [];
+      for (let j = 0; j < totalCols; j++) {
+        const meta = colMeta[j];
+        if (!meta || meta.hiddenByUser !== true) {
+          visibleCols.push(j);
+        }
+      }
+      
+      // Ограничиваем вывод только первыми 4 столбцами
+      visibleCols = visibleCols.slice(0, 5);
+
+      const table = document.getElementById("sheetTable");
+
+      // Функция для получения информации о слиянии для ячейки (по оригинальным индексам)
+      function getMergeInfo(origRow, origCol) {
+        for (let merge of merges) {
+          if (merge.startRowIndex === origRow && merge.startColumnIndex === origCol) {
+            // Проверяем, что все строки и столбцы из диапазона видимы:
+            const visibleRowCount = visibleRows.filter(r => r >= merge.startRowIndex && r < merge.endRowIndex).length;
+            const visibleColCount = visibleCols.filter(c => c >= merge.startColumnIndex && c < merge.endColumnIndex).length;
+            // Если вся область объединения видима – возвращаем mergeInfo
+            if (visibleRowCount === (merge.endRowIndex - merge.startRowIndex) &&
+                visibleColCount === (merge.endColumnIndex - merge.startColumnIndex)) {
+              return { rowspan: visibleRowCount, colspan: visibleColCount };
+            }
+          }
+        }
+        return null;
+      }
+
+      // Функция для проверки, находится ли ячейка в объединённом диапазоне, но не является его началом
+      function isCellMerged(origRow, origCol) {
+        for (let merge of merges) {
+          if (origRow >= merge.startRowIndex && origRow < merge.endRowIndex &&
+              origCol >= merge.startColumnIndex && origCol < merge.endColumnIndex) {
+            // Если не верхняя левая ячейка – нужно пропустить
+            if (!(origRow === merge.startRowIndex && origCol === merge.startColumnIndex)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      // Функция преобразования объекта цвета из Sheets в строку rgba для CSS
+      function getColor(format) {
+        if (format && format.backgroundColor) {
+          const bg = format.backgroundColor;
+          const r = Math.round((bg.red || 0) * 255);
+          const g = Math.round((bg.green || 0) * 255);
+          const b = Math.round((bg.blue || 0) * 255);
+          const a = (bg.alpha !== undefined) ? bg.alpha : 1;
+          return `rgba(${r}, ${g}, ${b}, ${a})`;
+        }
+        return null;
+      }
+
+      // Функция для форматирования текста с переносами
+      function formatTextWithLineBreaks(text) {
+        if (!text) return "";
+        return text.replace(/\n/g, "<br>");
+      }
+
+      // Перебираем видимые строки
+      visibleRows.forEach((origRow, rowIndex) => {
+        const row = rowData[origRow] || {};
+        const values = row.values || [];
+        const tr = document.createElement("tr");
+
+        // Перебираем видимые столбцы (только первые 4)
+        visibleCols.forEach((origCol, colIndex) => {
+          // Если ячейка входит в объединённый диапазон (но не является его началом) – пропускаем её
+          if (isCellMerged(origRow, origCol)) return;
+
+          // Если первая строка считаем заголовком
+          const isHeader = (rowIndex === 0);
+          const cellElement = document.createElement(isHeader ? "th" : "td");
+          const cell = values[origCol] || {};
+
+          // Проверяем, является ли ячейка началом объединённого диапазона
+          const mergeInfo = getMergeInfo(origRow, origCol);
+          if (mergeInfo) {
+            if (mergeInfo.rowspan > 1) cellElement.rowSpan = mergeInfo.rowspan;
+            if (mergeInfo.colspan > 1) cellElement.colSpan = mergeInfo.colspan;
+          }
+
+          // Записываем отформатированное значение (с учетом переносов)
+          cellElement.innerHTML = formatTextWithLineBreaks(cell.formattedValue || "");
+
+          // Применяем форматирование (например, цвет фона)
+          const bgColor = getColor(cell.effectiveFormat);
+          if (bgColor) {
+            cellElement.style.backgroundColor = bgColor;
+          }
+          tr.appendChild(cellElement);
+        });
+        table.appendChild(tr);
+      });
+    })
+    .catch(error => {
+      console.error("Ошибка при загрузке таблицы:", error);
+    });
+</script>
+
+</body>
+</html>
