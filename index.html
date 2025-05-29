@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expert Credit</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Вход</title>
   <style>
-        body {
+    body {
       margin: 0;
-      padding: 0;
-      overflow: hidden;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0d1b2a, #1b263b);
       height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
-      position: relative;
+      justify-content: center;
+      overflow: hidden;
     }
 
     #particles-js {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
@@ -27,161 +26,176 @@
     }
 
     .login-container {
-      background: rgba(255, 255, 255, 0.8); /* Полупрозрачный фон */
-      border-radius: 15px;
-      padding: 30px;
-      max-width: 400px;
-      width: 100%;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(25px) saturate(180%);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      width: 320px;
       text-align: center;
-      backdrop-filter: blur(10px); /* Размытие фона */
-      animation: popIn 0.8s forwards; /* Анимация появления */
-    }
-        @keyframes popIn {
-      from {
-        opacity: 0;
-        transform: scale(0.5);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+      animation: fadeInUp 1s ease;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .login-title {
-      color: #FF4500; /* Оранжевый цвет заголовка */
-      font-size: 28px;
-      margin-bottom: 20px;
-      position: relative;
-      animation: fadeInTitle 1s ease-in-out; /* Анимация заголовка */
+    h2 {
+      margin-bottom: 25px;
+      font-weight: 500;
+      font-size: 24px;
+      animation: fadeIn 1s ease-in-out;
     }
 
-    @keyframes fadeInTitle {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .login-form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .login-form input {
-      background: #003366; /* Темно-синий фон для инпутов */
-      border: 2px solid #FF4500; /* Оранжевые границы */
-      border-radius: 8px;
-      color: #FFFFFF; /* Белый текст */
+    input, button {
+      width: 100%;
       padding: 12px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 12px;
       font-size: 16px;
       outline: none;
       transition: all 0.3s ease;
-      animation: fadeInInput 1s ease-in-out; /* Анимация инпутов */
-    }
-        @keyframes fadeInInput {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      box-sizing: border-box;
     }
 
-    .login-form input::placeholder {
-      color: rgba(255, 255, 255, 0.7); /* Светлый текст плейсхолдера */
-      font-style: italic;
+    input {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .login-form input:focus {
-      border-color: #FF6347; /* Более светлый оранжевый при фокусе */
-      box-shadow: 0 0 8px rgba(255, 99, 71, 0.5);
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
     }
 
-    .login-form input::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: 8px;
-      background: radial-gradient(circle at top left, rgba(255, 99, 71, 0.2), transparent);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.3s ease;
+    input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.02);
     }
 
-    .login-form input:focus::before {
-      transform: scaleX(1);
-    }
-
-    .login-form button {
-      background: #FF4500; /* Оранжевый фон кнопки */
-      border: none;
-      border-radius: 8px;
-      color: #FFFFFF;
-      padding: 12px;
-      font-size: 16px;
+    button {
+      background: rgba(30, 144, 255, 0.8);
+      color: white;
       cursor: pointer;
-      transition: all 0.3s ease;
-      animation: fadeInButton 1s ease-in-out; /* Анимация кнопки */
-    }
-    @keyframes fadeInButton {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .login-form button:hover {
-      background: #FF6347; /* Более светлый оранжевый при наведении */
-      transform: scale(1.05);
+    button:hover {
+      background: rgba(28, 134, 238, 0.9);
+      transform: scale(1.02);
     }
 
-    .login-container img {
-        width: 200px;
-        height: auto;
-      }
-
-    @keyframes float {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0); }
-    }
-
-    #error-message {
-      color: #FF6347; /* Оранжевый цвет ошибки */
-      margin-top: 20px;
+    .error {
+      color: #ff6b6b;
+      margin-top: 10px;
       font-size: 14px;
-      display: none; /* Изначально скрыто */
+      animation: shake 0.3s;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
     }
   </style>
 </head>
 <body>
-  <div id="particles-js"></div>
-  <div class="login-container">
-    <h2 class="login-title">Вход в систему</h2>
-    <div class="login-form">
-      <input type="text" id="username" placeholder="Логин">
-      <input type="password" id="password" placeholder="Пароль">
-      <button onclick="login()">Войти</button>
-      <p id="error-message">Неверный логин или пароль</p>
-    </div><br><br>
-    <img src="logo-default-480x80.png" alt="Logo">
-  </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1-crypto-js.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-  <script src="login.js"></script> <!-- Подключаем внешний файл с JavaScript -->
+
+<div id="particles-js"></div>
+
+<div class="login-container">
+	
+  <img src="logo-default-480x80.png" alt="Логотип" style="width: 180px; margin-bottom: 20px;" />
+  
+  <h2>Вход в систему</h2>
+  <input type="text" id="u" placeholder="Логин" />
+  <input type="password" id="p" placeholder="Пароль" />
+  <button onclick="l()">Войти</button>
+  <div class="error" id="e"></div>
+  <!-- Вставьте это внутрь <div class="login-container">, сразу после логотипа -->
+  <div id="datetime" style="margin-bottom: 15px; font-size: 14px; opacity: 0.8;"></div>
+  
+</div>
+
+<!-- Библиотека sha256 -->
+<script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/build/sha256.min.js"></script>
+
+<!-- Particles -->
+<script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+
+<script>
+  particlesJS("particles-js", {
+    particles: {
+      number: { value: 40 },
+      color: { value: "#ffffff" },
+      shape: { type: "circle" },
+      opacity: { value: 0.4 },
+      size: { value: 3 },
+      move: { enable: true, speed: 1.5 }
+    }
+  });
+
+  const a = {
+    "admin":   { h: "6a6ac8386005b00f2af86a300f1ae811527b9d979db505e11ae7c5b85fa679c3", r: "dashboard.html" },
+    "user":    { h: "ceaa28bba4caba687dc31b1bbe79eca3c70c33f871f1ce8f528cf9ab5cfd76dd", r: "dash.html" },
+    "manager": { h: "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", r: "main.html" },
+    "client":  { h: "3f230640b78d7e71ac5514e57935eb69b665fb692e8b99f9b45d4fca984babfa", r: "client.html" }
+  };
+
+  function h(t) {
+    return sha256(t); // Библиотека js-sha256
+  }
+
+  function l() {
+    const u = document.getElementById("u").value.trim();
+    const p = document.getElementById("p").value.trim();
+    const e = document.getElementById("e");
+
+    if (!a[u]) {
+      e.textContent = "Неверный логин или пароль!";
+      return;
+    }
+
+    const x = h(p);
+    if (x === a[u].h) {
+      const msg = document.createElement("div");
+      msg.textContent = "✅ Вход выполнен!";
+      msg.style = "position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#2ecc71;padding:10px 20px;color:#fff;border-radius:8px;font-size:18px;box-shadow:0 5px 15px rgba(0,0,0,0.2);z-index:1000;";
+      document.body.appendChild(msg);
+      setTimeout(() => { location.href = a[u].r; }, 1000);
+    } else {
+      e.textContent = "Неверный логин или пароль!";
+    }
+  }
+
+  document.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      l();
+    }
+  });
+  
+  function updateDateTime() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const time = now.toLocaleTimeString('ru-RU');
+    const date = now.toLocaleDateString('ru-RU', options);
+    document.getElementById('datetime').textContent = `${date}, ${time}`;
+  }
+  setInterval(updateDateTime, 1000);
+  updateDateTime(); // Вызов сразу при загрузке
+  
+</script>
+
 </body>
 </html>
