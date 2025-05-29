@@ -1,159 +1,355 @@
-	<!DOCTYPE html>
-	<html lang="ru">
-	<head>
-	    <meta charset="UTF-8">
-	    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	    <title>Ипотечный Калькулятор</title>
-	    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-	    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-	    <script>
-	        function formatNumber(num) {
-	            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-	        }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ипотечный Калькулятор</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            /* Vision Pro Glassmorphism variables for standalone use */
+            --base-font-size: 16px;
+            --text-color: rgba(0, 0, 0, 0.9);
+            --text-color-dimmed: rgba(0, 0, 0, 0.6);
+            --highlight-color: #007aff;
+            --background-blur: 25px;
+            --glass-background-light: rgba(255, 255, 255, 0.10); /* Transparent effect */
+            --glass-background-dark: rgba(255, 255, 255, 0.10); /* Transparent effect */
+            --glass-border-color: rgba(255, 255, 255, 0.3);
+            --card-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            --border-radius: 20px; /* Slightly smaller for a standalone card */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
 
-	        function parseNumber(str) {
-	            return parseFloat(str.replace(/\s/g, ''));
-	        }
+        body {
+            margin: 0;
+            font-family: var(--font-family);
+            background-image: url('https://sun9-34.userapi.com/impg/rsw3tAqVyPbsV-5gkI1GOs0_VM_4aN0ojmMt9g/fQWc7rAfzX8.jpg?size=2560x804&quality=95&sign=ec1b08cdf6dac0bd5ecb55390bfd4ef1&type=album'); /* Using your uploaded image */
+            background-size: cover;
+            background-position: center;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center; /* Center content horizontally */
+            align-items: center; /* Center content vertically */
+            min-height: 100vh;
+            overflow: auto; /* Allow scrolling if content overflows on small screens */
+            background-attachment: fixed;
+            padding: 20px; /* Add some padding around the calculator */
+            box-sizing: border-box;
+        }
 
-	        function calculate() {
-	            const amount = parseNumber(document.getElementById('amount').value);
-	            const rate = parseFloat(document.getElementById('rate').value) / 100 / 12;
-	            const months = parseFloat(document.getElementById('months').value);
-	            const type = document.querySelector('input[name="type"]:checked').value;
+        .calculator-wrapper {
+            background: var(--glass-background-light);
+            backdrop-filter: blur(var(--background-blur));
+            -webkit-backdrop-filter: blur(var(--background-blur));
+            border-radius: var(--border-radius);
+            border: 1px solid var(--glass-border-color);
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            max-width: 500px; /* Max width for the calculator card */
+            width: 100%; /* Make it responsive */
+            box-sizing: border-box;
+        }
 
-	            let totalPayment = 0;
-	            let overpayment = 0;
-	            let remainingAmount = amount;
-	            let payments = [];
+        .calculator-title {
+            color: var(--text-color);
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+        }
 
-	            let monthlyPaymentResult = 0;
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-	            if (type === 'annuity') {
-	                const annuityCoefficient = (rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1);
-	                monthlyPaymentResult = amount * annuityCoefficient;
-	                totalPayment = monthlyPaymentResult * months;
-	                overpayment = totalPayment - amount;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color-dimmed);
+        }
 
-	                for (let i = 1; i <= months; i++) {
-	                    const interestPayment = remainingAmount * rate;
-	                    const principalPayment = monthlyPaymentResult - interestPayment;
-	                    remainingAmount -= principalPayment;
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            background: rgba(255, 255, 255, 0.1); /* Transparent input background */
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Lighter border */
+            border-radius: 8px;
+            padding: 12px 15px;
+            width: 93%;
+            color: var(--text-color); /* Input text color */
+            outline: none;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
 
-	                    payments.push({
-	                        month: i,
-	                        monthlyPayment: formatNumber(monthlyPaymentResult.toFixed(2)),
-	                        principalPayment: formatNumber(principalPayment.toFixed(2)),
-	                        interestPayment: formatNumber(interestPayment.toFixed(2)),
-	                        remainingAmount: formatNumber(remainingAmount.toFixed(2))
-	                    });
-	                }
-	            } else {
-	                const principalPayment = amount / months;
+        .form-group input::placeholder {
+            color: rgba(0, 0, 0, 0.4);
+        }
 
-	                for (let i = 1; i <= months; i++) {
-	                    const interestPayment = remainingAmount * rate;
-	                    monthlyPaymentResult = principalPayment + interestPayment;
-	                    totalPayment += monthlyPaymentResult;
-	                    overpayment = totalPayment - amount;
+        .form-group input:focus {
+            border-color: var(--highlight-color);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
 
-	                    payments.push({
-	                        month: i,
-	                        monthlyPayment: formatNumber(monthlyPaymentResult.toFixed(2)),
-	                        principalPayment: formatNumber(principalPayment.toFixed(2)),
-	                        interestPayment: formatNumber(interestPayment.toFixed(2)),
-	                        remainingAmount: formatNumber(remainingAmount.toFixed(2))
-	                    });
+        .radio-group {
+            margin-bottom: 20px;
+            color: var(--text-color-dimmed);
+        }
 
-	                    remainingAmount -= principalPayment;
-	                }
-	            }
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+        }
 
-	            document.getElementById('result').innerHTML = `
-	                <p>Ежемесячный платёж: ${formatNumber(monthlyPaymentResult.toFixed(2))} ₸</p>
-	                <p>Переплата: ${formatNumber(overpayment.toFixed(2))} ₸</p>
-	                <p>Общая сумма выплат: ${formatNumber(totalPayment.toFixed(2))} ₸</p>
-	            `;
+        .radio-group label {
+            display: inline-block;
+            margin-right: 15px;
+            cursor: pointer;
+            font-weight: 400;
+        }
 
-	            sessionStorage.setItem('payments', JSON.stringify(payments));
-	        }
+        .calculator-button {
+            background: rgba(0, 122, 255, 0.7); /* Blue for primary action */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            margin-bottom: 15px; /* Spacing between buttons */
+        }
 
-	        function downloadPDF() {
-	            const payments = JSON.parse(sessionStorage.getItem('payments'));
+        .calculator-button:hover {
+            background-color: rgba(0, 122, 255, 0.9);
+            transform: translateY(-2px);
+        }
 
-	            let tableContent = `
-	            <div style='display: flex; justify-content: space-between; align-items: center; margin-left: 10px margin-bottom: 40px; padding: 5 10px;'>
-	                <h1>Предварительный график погашения от Expert Credit</h1>
-    <img src="logo-default-480x80.png" alt="Логотип Expert Credit" style="height: 50px; width: 300px; margin-top: 12px; margin-right: 5px; margin-bottom: 10px;">
-            	            </div>
-	            <table class='table-auto w-full mt-4 border-collapse border border-gray-300' style='margin: 0 10px 0 10px;'>
-	                <thead>
-	                    <tr>
-	                        <th class='border border-gray-300 p-2'>Месяц</th>
-	                        <th class='border border-gray-300 p-2'>Ежемесячный платёж (₸)</th>
-	                        <th class='border border-gray-300 p-2'>Основной долг (₸)</th>
-	                        <th class='border border-gray-300 p-2'>Проценты банка (₸)</th>
-	                        <th class='border border-gray-300 p-2'>Остаток долга (₸)</th>
-	                    </tr>
-	                </thead>
-	                <tbody>
-	                    ${payments.map(payment => `
-	                    <tr>
-	                        <td class='border border-gray-300 p-2'>${payment.month}</td>
-	                        <td class='border border-gray-300 p-2'>${payment.monthlyPayment}</td>
-	                        <td class='border border-gray-300 p-2'>${payment.principalPayment}</td>
-	                        <td class='border border-gray-300 p-2'>${payment.interestPayment}</td>
-	                        <td class='border border-gray-300 p-2'>${payment.remainingAmount}</td>
-	                    </tr>
-	                    `).join('')}
-	                </tbody>
-	            </table>`;
+        .calculator-button.download-button {
+            background: rgba(40, 167, 69, 0.7); /* Green for download */
+        }
 
-	            const element = document.createElement('div');
-	            element.innerHTML = tableContent;
-	            html2pdf().from(element).save();
-	        }
+        .calculator-button.download-button:hover {
+            background-color: rgba(40, 167, 69, 0.9);
+        }
 
-	        document.addEventListener('input', (e) => {
-	            if (e.target.id === 'amount') {
-	                e.target.value = formatNumber(e.target.value.replace(/\D/g, ''));
-	            }
-	        });
-		        document.addEventListener('click', (e) => {
-		            if (!e.target.closest('input, button')) {
-		                document.activeElement.blur();
-		            }
-	        });
+        .result-area {
+            background: rgba(255, 255, 255, 0.1); /* Lighter background for results */
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: var(--text-color);
+            border: 1px dashed rgba(255, 255, 255, 0.3); /* Dashed border for results */
+            margin-top: 20px;
+        }
 
-	    </script>
-	</head>
-	<body class="bg-gray-100 text-gray-800">
-	<div class="container mx-auto p-4 max-w-lg">
-	    <div class="flex justify-start mb-4">
-	    </div>
-	    <div class="bg-white shadow-md rounded-lg p-6">
-	        <h1 class="text-2xl font-bold mb-4">Ипотечный Калькулятор</h1>
-	        <div class="mb-4">
-	            <label>Сумма кредита (₸):</label>
-	            <input type="text" id="amount" class="border rounded p-2 w-full" placeholder="Введите сумму">
-	        </div>
-	        <div class="mb-4">
-	            <label>Процентная ставка (% годовых):</label>
-	            <input type="number" id="rate" class="border rounded p-2 w-full" placeholder="Введите % ставку">
-	        </div>
-	        <div class="mb-4">
-	            <label>Срок кредита (месяцев):</label>
-	            <input type="number" id="months" class="border rounded p-2 w-full" placeholder="Введите срок">
-	        </div>
-	        <div class="mb-4">
-	            <label>Тип платежа:</label><br>
-	            <input type="radio" name="type" value="annuity" checked> Аннуитетный
-	            <input type="radio" name="type" value="differentiated"> Дифференцированный
-	        </div>
-	        <button class="bg-blue-500 text-white rounded p-2 mb-4 w-full" onclick="calculate()">Рассчитать</button>
-	        <button class="bg-green-500 text-white rounded p-2 mb-4 w-full" onclick="downloadPDF()">Скачать график (PDF)</button>
-	        <div id="result" class="mt-4 bg-gray-50 p-4 rounded"></div>
-	    </div>
-	</div>
-	</body>
-	</html>
-	
+        .result-area p {
+            margin-bottom: 5px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .calculator-wrapper {
+                padding: 20px;
+            }
+            .calculator-title {
+                font-size: 1.8em;
+            }
+            .form-group label, .radio-group label {
+                font-size: 0.9em;
+            }
+            .calculator-input, .calculator-button {
+                padding: 10px 12px;
+                font-size: 1em;
+            }
+            .result-area {
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-wrapper">
+        <h1 class="calculator-title">Ипотечный Калькулятор</h1>
+        <div class="form-group">
+            <label for="amount">Сумма кредита (₸):</label>
+            <input type="text" id="amount" placeholder="Введите сумму">
+        </div>
+        <div class="form-group">
+            <label for="rate">Процентная ставка (% годовых):</label>
+            <input type="number" id="rate" placeholder="Введите % ставку">
+        </div>
+        <div class="form-group">
+            <label for="months">Срок кредита (месяцев):</label>
+            <input type="number" id="months" placeholder="Введите срок">
+        </div>
+        <div class="radio-group">
+            <label>Тип платежа:</label><br>
+            <input type="radio" name="type" value="annuity" id="type-annuity" checked> <label for="type-annuity">Аннуитетный</label>
+            <input type="radio" name="type" value="differentiated" id="type-differentiated"> <label for="type-differentiated">Дифференцированный</label>
+        </div>
+        <button class="calculator-button" onclick="calculate()">Рассчитать</button>
+        <button class="calculator-button download-button" onclick="downloadPDF()">Скачать график (PDF)</button>
+        <div id="result" class="result-area"></div>
+    </div>
+
+    <script>
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function parseNumber(str) {
+            return parseFloat(str.replace(/\s/g, ''));
+        }
+
+        function calculate() {
+            const amountInput = document.getElementById('amount');
+            const rateInput = document.getElementById('rate');
+            const monthsInput = document.getElementById('months');
+
+            // Basic validation
+            if (!amountInput.value || !rateInput.value || !monthsInput.value) {
+                document.getElementById('result').innerHTML = `<p style="color: red;">Пожалуйста, заполните все поля.</p>`;
+                return;
+            }
+
+            const amount = parseNumber(amountInput.value);
+            const rate = parseFloat(rateInput.value) / 100 / 12;
+            const months = parseFloat(monthsInput.value);
+            const type = document.querySelector('input[name="type"]:checked').value;
+
+            let totalPayment = 0;
+            let overpayment = 0;
+            let remainingAmount = amount;
+            let payments = [];
+
+            let monthlyPaymentResult = 0;
+
+            if (type === 'annuity') {
+                if (rate === 0) { // Handle zero interest rate
+                    monthlyPaymentResult = amount / months;
+                    totalPayment = amount;
+                    overpayment = 0;
+                    for (let i = 1; i <= months; i++) {
+                        remainingAmount -= monthlyPaymentResult;
+                        payments.push({
+                            month: i,
+                            monthlyPayment: formatNumber(monthlyPaymentResult.toFixed(2)),
+                            principalPayment: formatNumber(monthlyPaymentResult.toFixed(2)),
+                            interestPayment: formatNumber((0).toFixed(2)),
+                            remainingAmount: formatNumber(remainingAmount.toFixed(2) < 0 ? 0 : remainingAmount.toFixed(2)) // Prevent negative remaining
+                        });
+                    }
+                } else {
+                    const annuityCoefficient = (rate * Math.pow(1 + rate, months)) / (Math.pow(1 + rate, months) - 1);
+                    monthlyPaymentResult = amount * annuityCoefficient;
+                    totalPayment = monthlyPaymentResult * months;
+                    overpayment = totalPayment - amount;
+
+                    for (let i = 1; i <= months; i++) {
+                        const interestPayment = remainingAmount * rate;
+                        const principalPayment = monthlyPaymentResult - interestPayment;
+                        remainingAmount -= principalPayment;
+
+                        payments.push({
+                            month: i,
+                            monthlyPayment: formatNumber(monthlyPaymentResult.toFixed(2)),
+                            principalPayment: formatNumber(principalPayment.toFixed(2)),
+                            interestPayment: formatNumber(interestPayment.toFixed(2)),
+                            remainingAmount: formatNumber(remainingAmount.toFixed(2) < 0 ? 0 : remainingAmount.toFixed(2)) // Prevent negative remaining
+                        });
+                    }
+                }
+            } else { // Differentiated
+                const principalPaymentFixed = amount / months; // Use a new variable to avoid confusion
+
+                for (let i = 1; i <= months; i++) {
+                    const interestPayment = remainingAmount * rate;
+                    monthlyPaymentResult = principalPaymentFixed + interestPayment; // Corrected monthlyPayment for diff
+                    totalPayment += monthlyPaymentResult;
+
+                    payments.push({
+                        month: i,
+                        monthlyPayment: formatNumber(monthlyPaymentResult.toFixed(2)),
+                        principalPayment: formatNumber(principalPaymentFixed.toFixed(2)),
+                        interestPayment: formatNumber(interestPayment.toFixed(2)),
+                        remainingAmount: formatNumber((remainingAmount - principalPaymentFixed).toFixed(2) < 0 ? 0 : (remainingAmount - principalPaymentFixed).toFixed(2))
+                    });
+
+                    remainingAmount -= principalPaymentFixed; // Update remaining for next iteration
+                }
+                overpayment = totalPayment - amount; // Calculate total overpayment after loop
+            }
+
+            document.getElementById('result').innerHTML = `
+                <p>Ежемесячный платёж: ${formatNumber(monthlyPaymentResult.toFixed(2))} ₸</p>
+                <p>Переплата: ${formatNumber(overpayment.toFixed(2))} ₸</p>
+                <p>Общая сумма выплат: ${formatNumber(totalPayment.toFixed(2))} ₸</p>
+            `;
+
+            sessionStorage.setItem('payments', JSON.stringify(payments));
+        }
+
+        function downloadPDF() {
+            const payments = JSON.parse(sessionStorage.getItem('payments'));
+
+            if (!payments || payments.length === 0) {
+                console.log('Сначала рассчитайте платежи!');
+                // For standalone page, a simple alert is acceptable if no custom modal is built.
+                // However, per general instructions, avoid alert(). Let's update the result area.
+                document.getElementById('result').innerHTML = `<p style="color: red;">Сначала рассчитайте платежи!</p>`;
+                return;
+            }
+
+            let tableContent = `
+                <div style='display: flex; justify-content: space-between; align-items: center; margin-left: 10px; margin-bottom: 40px; padding: 5px 10px; width: 100%; box-sizing: border-box;'>
+                    <h1 style='font-size: 20px; font-weight: bold;'>Предварительный график погашения от Expert Credit</h1>
+                    <img src="https://photos.fife.usercontent.google.com/pw/AP1GczP0N11vcTIWgHdjKRYLM4MM7_XSGyVz_QAGd-z-zcGMDziF3UvhbDBncA=w1281-h297-s-no-gm?authuser=0" alt="Логотип Expert Credit" style="height: 50px; width: 300px; object-fit: contain;">
+                </div>
+                <table style='width: 100%; border-collapse: collapse; margin: 0 10px; font-size: 10px;'>
+                    <thead>
+                        <tr>
+                            <th style='border: 1px solid #ccc; padding: 8px; text-align: left; background-color: #f2f2f2;'>Месяц</th>
+                            <th style='border: 1px solid #ccc; padding: 8px; text-align: left; background-color: #f2f2f2;'>Ежемесячный платёж (₸)</th>
+                            <th style='border: 1px solid #ccc; padding: 8px; text-align: left; background-color: #f2f2f2;'>Основной долг (₸)</th>
+                            <th style='border: 1px solid #ccc; padding: 8px; text-align: left; background-color: #f2f2f2;'>Проценты банка (₸)</th>
+                            <th style='border: 1px solid #ccc; padding: 8px; text-align: left; background-color: #f2f2f2;'>Остаток долга (₸)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${payments.map(payment => `
+                        <tr>
+                            <td style='border: 1px solid #ccc; padding: 8px;'>${payment.month}</td>
+                            <td style='border: 1px solid #ccc; padding: 8px;'>${payment.monthlyPayment}</td>
+                            <td style='border: 1px solid #ccc; padding: 8px;'>${payment.principalPayment}</td>
+                            <td style='border: 1px solid #ccc; padding: 8px;'>${payment.interestPayment}</td>
+                            <td style='border: 1px solid #ccc; padding: 8px;'>${payment.remainingAmount}</td>
+                        </tr>
+                        `).join('')}
+                    </tbody>
+                </table>`;
+
+            const element = document.createElement('div');
+            element.innerHTML = tableContent;
+            html2pdf().from(element).save('график_погашения.pdf');
+        }
+
+        document.addEventListener('input', (e) => {
+            if (e.target.id === 'amount') {
+                e.target.value = formatNumber(e.target.value.replace(/\D/g, ''));
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('input, button')) {
+                if (document.activeElement && document.activeElement !== document.body) {
+                    document.activeElement.blur();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
