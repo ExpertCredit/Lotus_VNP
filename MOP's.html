@@ -1,228 +1,510 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Кайфовая панель управления</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --primary: #5e4ae3;
-      --accent: #ff6f61;
-      --bg: #f0f2f5;
-      --card-bg: #ffffff;
-      --text: #333333;
-      --light-text: #777777;
-      --radius: 12px;
-      --transition: 0.4s;
-      --shadow: rgba(0, 0, 0, 0.08);
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html, body {
-      height: 100%;
-      overflow: hidden;
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-    }
-    .sidebar {
-      width: 280px;
-      background: #fff;
-      box-shadow: 2px 0 10px var(--shadow);
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-      gap: 20px;
-    }
-    .menu-btn {
-      background: none; border: none;
-      padding: 12px; cursor: pointer;
-      transition: background var(--transition);
-      color: var(--text);
-      text-align: left;
-      border-radius: var(--radius);
-    }
-    .menu-btn:hover, .menu-btn.active {
-      background: var(--primary);
-      color: #fff;
-    }
-    .content {
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-      padding: 40px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
-    .header h2 { font-size: 1.8rem; }
-    .clock { color: var(--light-text); }
-    .section {
-      display: none;
-      height: calc(100% - 80px);
-      overflow: auto;
-    }
-    .section.active { display: block; }
-    #sheetTable {
-      width: 100%;
-      border-collapse: collapse;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      margin-top: 20px;
-    }
-    #sheetTable th, #sheetTable td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-    }
-    #sheetTable th {
-      background-color: #f2f2f2;
-      font-weight: bold;
-    }
-    #sheetTable tr:nth-child(even) { background-color: #f9f9f9; }
-    #sheetTable tr:hover { background-color: #e8f4ff; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель Управления</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            /* Vision Pro Glassmorphism variables */
+            --base-font-size: 16px;
+            --text-color: rgba(0, 0, 0, 0.9); /* Darker text for contrast on light glass */
+            --text-color-dimmed: rgba(0, 0, 0, 0.6); /* Dimmed text for secondary info */
+            --highlight-color: #007aff; /* Apple's blue */
+            --background-blur: 25px; /* Increased blur for stronger glass effect */
+            --glass-background-light: rgba(255, 255, 255, 0.10); /* Transparent effect */
+            --glass-background-dark: rgba(255, 255, 255, 0.10); /* Transparent effect */
+            --glass-border-color: rgba(255, 255, 255, 0.3); /* Softer, more transparent border */
+            --card-shadow: 0 15px 50px rgba(0, 0, 0, 0.15); /* Enhanced shadow for depth */
+            --border-radius: 40px; /* Larger border-radius for the main display */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+            /* Additional variables from second code, adapted for compatibility */
+            --primary: #5e4ae3; /* Not directly used for glass, but kept if needed */
+            --accent: #ff6f61; /* Not directly used for glass, but kept if needed */
+            --bg: #f0f2f5; /* Body background color */
+            --card-bg: #ffffff; /* General card/element background, not used by glass */
+            --light-text: #777777; /* Kept for general use */
+            --radius: 12px; /* General border radius, not used by glass */
+            --transition: 0.4s; /* General transition time */
+            --shadow: rgba(0, 0, 0, 0.08); /* General shadow, glass effect has its own */
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-image: url('Vision pro forecast.jpeg'); /* Using your uploaded image */
+            background-size: cover;
+            background-position: center;
+            color: var(--text-color); /* Use Vision Pro text color */
+            display: flex;
+            min-height: 100vh;
+            overflow: hidden;
+            background-attachment: fixed;
+            /* Removed original body background color var(--bg) to use image */
+        }
+
+        .dashboard-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            padding: 15px 20px 15px 10px;
+            box-sizing: border-box;
+            gap: 20px;
+        }
+
+        .sidebar {
+            width: 80px; /* Narrower for icon-based navigation */
+            height: 100%;
+            background: var(--glass-background-dark);
+            backdrop-filter: blur(var(--background-blur));
+            -webkit-backdrop-filter: blur(var(--background-blur));
+            border-radius: var(--border-radius);
+            border: 1px solid var(--glass-border-color);
+            box-shadow: var(--card-shadow);
+            padding: 20px 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 20; /* Ensure sidebar is above main-display if needed for small screens */
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            text-decoration: none;
+            color: var(--text-color-dimmed);
+            background-color: transparent;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            font-size: 1.5em; /* Icon size */
+            position: relative; /* For tooltip-like text */
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li a.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: var(--text-color);
+        }
+
+        .sidebar-nav li a span.text {
+            position: absolute;
+            left: 60px; /* Position text next to icon */
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 100; /* Increased z-index to be on top */
+        }
+
+        .sidebar-nav li a:hover span.text {
+            opacity: 1;
+        }
+
+        .main-display {
+            flex: 1;
+            background: var(--glass-background-light);
+            backdrop-filter: blur(var(--background-blur));
+            -webkit-backdrop-filter: blur(var(--background-blur));
+            border-radius: var(--border-radius);
+            border: 1px solid var(--glass-border-color);
+            padding: 30px 40px;
+            box-shadow: var(--card-shadow);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Control main-display overflow */
+            z-index: 10; /* Ensure main-display is below tooltips */
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .header-info .date-time {
+            font-weight: 500;
+            color: var(--text-color-dimmed);
+        }
+
+        .header-info .section-title { /* Renamed for clarity */
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1.2em;
+        }
+
+        .content-section {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            flex-grow: 1; /* Allow section to take available space */
+            padding: 0; /* Remove extra padding, main-display handles it */
+            height: calc(100% - 80px); /* Adjust height for header */
+            overflow: auto; /* Allow scrolling within section */
+        }
+
+        .content-section.active {
+            display: flex; /* Show active section */
+        }
+
+        /* Table styles from second code, adapted for glassmorphism */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08); /* Lighter shadow for glass */
+            margin-top: 20px;
+            border-radius: 10px; /* Rounded corners for table */
+            overflow: hidden; /* Ensures rounded corners apply to content */
+            background-color: rgba(255, 255, 255, 0.2); /* Slightly transparent background for table */
+        }
+        th, td {
+            border: 1px solid rgba(255, 255, 255, 0.4); /* Softer border */
+            padding: 12px;
+            text-align: left;
+            color: var(--text-color);
+        }
+        th {
+            background-color: rgba(255, 255, 255, 0.3); /* Slightly more opaque header */
+            font-weight: bold;
+        }
+        tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.1); } /* Alternating row color */
+        tr:hover { background-color: rgba(255, 255, 255, 0.25); } /* Hover effect */
+
+        /* Iframe styling */
+        .content-section iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 15px; /* Consistent border radius */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Consistent shadow */
+            background-color: rgba(255, 255, 255, 0.1); /* Light background for iframe to blend */
+        }
+
+        /* Scrollbar for Webkit browsers */
+        .main-display::-webkit-scrollbar,
+        .content-section::-webkit-scrollbar {
+            width: 8px; /* For vertical scrollbar */
+        }
+
+        .main-display::-webkit-scrollbar-track,
+        .content-section::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+
+        .main-display::-webkit-scrollbar-thumb,
+        .content-section::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .main-display::-webkit-scrollbar-thumb:hover,
+        .content-section::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+                padding: 15px 20px 15px 10px;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 15px 0;
+                flex-direction: row;
+                justify-content: space-around;
+                border-radius: 20px;
+                margin-bottom: 20px;
+                z-index: 30; /* Ensure sidebar is on top when collapsed/expanded on small screens */
+            }
+            .sidebar-nav ul {
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-around;
+            }
+            .sidebar-nav li {
+                margin: 0 5px;
+            }
+            .sidebar-nav li a span.text {
+                display: none; /* Hide tooltips on small screens to avoid clutter */
+            }
+            .main-display {
+                width: 100%;
+                height: auto;
+                padding: 25px;
+                border-radius: 20px;
+            }
+            .header-info {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            .content-section {
+                height: auto; /* Allow content to dictate height on small screens */
+            }
+        }
+
+        @media (max-width: 600px) {
+             /* Further adjustments for very small screens if needed */
+        }
+    </style>
 </head>
 <body>
-  <div class="sidebar">
-    <button class="menu-btn active" onclick="show('links', this)">Скрипт МОП</button>
-    <button class="menu-btn" onclick="show('search', this)">Вопрос/ответ</button>
-    <button class="menu-btn" onclick="show('documents', this)">бета1</button>
-    <button class="menu-btn" onclick="show('calendar', this)">бета2</button>
-    <button class="menu-btn" onclick="show('chat', this)">Календарь встреч</button>
-  </div>
-  <div class="content">
-    <div class="header">
-      <div id="clock" class="clock"></div>
-      <h2 id="section-title">Ссылки</h2>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#script-mop-script" class="active"><span class="icon"><i class="fas fa-file-alt"></i></span><span class="text">Скрипт МОП (скрипт)</span></a></li>
+                    <li><a href="#script-mop-soprovod"><span class="icon"><i class="fas fa-file-alt"></i></span><span class="text">Скрипт МОП (сопровод)</span></a></li>
+                    <li><a href="#qa"><span class="icon"><i class="fas fa-question-circle"></i></span><span class="text">Вопрос/ответ</span></a></li>
+                    <li><a href="#beta1"><span class="icon"><i class="fas fa-flask"></i></span><span class="text">Бета1</span></a></li>
+                    <li><a href="#beta2"><span class="icon"><i class="fas fa-vial"></i></span><span class="text">Бета2</span></a></li>
+                    <li><a href="#meetings-calendar"><span class="icon"><i class="fas fa-calendar-alt"></i></span><span class="text">Календарь встреч</span></a></li>
+                </ul>
+            </nav>
+            <div style="margin-top: auto; text-align: center; padding-top: 20px;">
+                <p style="font-size: 0.7em; color: var(--text-color-dimmed); opacity: 0.7;">© 2025</p>
+            </div>
+        </aside>
+
+        <main class="main-display">
+            <div class="header-info">
+                <div class="date-time" id="current-date-time"></div>
+                <div class="section-title" id="section-title">Скрипт МОП (скрипт)</div>
+            </div>
+
+            <div id="script-mop-script" class="content-section active">
+                <table id="sheetTable"></table>
+            </div>
+
+            <div id="script-mop-soprovod" class="content-section">
+                <table id="secondSheetTable"></table>
+            </div>
+
+            <div id="qa" class="content-section">
+                <iframe
+                    src="https://docs.google.com/spreadsheets/d/1lckCooUB16zbxOJsplg82uDxczaJcGSrMWoZQ4Qe7ro/edit?gid=0#gid=0"
+                    allowfullscreen>
+                </iframe>
+            </div>
+
+            <div id="beta1" class="content-section">
+                <p style="text-align: center; color: var(--text-color-dimmed);">Содержимое для "Бета1" здесь.</p>
+            </div>
+
+            <div id="beta2" class="content-section">
+                <p style="text-align: center; color: var(--text-color-dimmed);">Содержимое для "Бета2" здесь.</p>
+            </div>
+
+            <div id="meetings-calendar" class="content-section">
+                <iframe
+                    src="https://docs.google.com/spreadsheets/d/1Hr7a48hh6uO7m-BXXSXOR78v8YtmnAoIT2wJ1NT_5Xk/edit?gid=2062193080#gid=2062193080"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </main>
     </div>
-    <div id="links" class="section active">
-      <h2>Данные из Google Sheets</h2>
-      <table id="sheetTable"></table>
-    </div>
-<div id="search" class="section">
-  <iframe 
-    src="https://docs.google.com/spreadsheets/d/1lckCooUB16zbxOJsplg82uDxczaJcGSrMWoZQ4Qe7ro/edit?gid=0#gid=0" 
-    width="100%" 
-    height="100%" 
-    style="border: none;"
-    allowfullscreen>
-  </iframe>
-</div>   
- <div id="documents" class="section"></div>
-    <div id="calendar" class="section"></div>
-    <div id="chat" class="section"><iframe 
-    src="https://docs.google.com/spreadsheets/d/1Hr7a48hh6uO7m-BXXSXOR78v8YtmnAoIT2wJ1NT_5Xk/edit?gid=2062193080#gid=2062193080" 
-    width="100%" 
-    height="100%" 
-    style="border: none;"
-    allowfullscreen>
-  </iframe>
-</div>
-  </div>
-  <script>
-    function show(id, btn) {
-      document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      btn.classList.add('active');
-      document.getElementById('section-title').textContent = btn.textContent;
-    }
 
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleString('ru-RU');
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+    <script>
+        function updateDateTime() {
+            const dateTimeElement = document.getElementById('current-date-time');
+            const now = new Date();
 
-    const sheetId = "1phiarzwfQ3IVOfo43N3nhTt0iDL6dWHCkghmOvIuAWs";
-    const sheetName = "Лист1";
-    const apiKey = "AIzaSyCQjribXYsn26hdnIwgm0h9Cg7TysjyWg4";
+            const optionsDate = { weekday: 'long', day: 'numeric', month: 'long' };
+            const formattedDate = now.toLocaleDateString('ru-RU', optionsDate);
 
-    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?includeGridData=true&key=${apiKey}`)
-      .then(res => res.json())
-      .then(data => {
-        const sheet = data.sheets.find(s => s.properties.title === sheetName) || data.sheets[0];
-        const { merges = [] } = sheet;
-        const grid = sheet.data[0];
-        const rows = grid.rowData || [];
-        const rowMeta = grid.rowMetadata || [];
-        const colMeta = grid.columnMetadata || [];
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }; // 24-hour format
+            const formattedTime = now.toLocaleTimeString('ru-RU', optionsTime);
 
-        
-		
-		const visibleRows = rows.map((r, i) => i).filter(i => !(rowMeta[i] && rowMeta[i].hiddenByUser));
-        const totalCols = Math.max(colMeta.length, ...rows.map(r => r.values ? r.values.length : 0));
-        let visibleCols = [...Array(totalCols).keys()].filter(j => !(colMeta[j] && colMeta[j].hiddenByUser)).slice(0, 5);
+            dateTimeElement.textContent = `${formattedDate}, ${formattedTime}`;
+        }
 
-        const table = document.getElementById("sheetTable");
+        // Function to handle sidebar navigation clicks and update section title
+        function showSection(sectionId, btnElement) {
+            // Remove 'active' from all sidebar links
+            document.querySelectorAll('.sidebar-nav li a').forEach(b => b.classList.remove('active'));
+            // Remove 'active' from all content sections
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
 
-        function getMerge(r, c) {
-          for (let m of merges) {
-            if (m.startRowIndex === r && m.startColumnIndex === c) {
-              return {
-                rowspan: visibleRows.filter(rr => rr >= m.startRowIndex && rr < m.endRowIndex).length,
-                colspan: visibleCols.filter(cc => cc >= m.startColumnIndex && cc < m.endColumnIndex).length
-              };
+            // Add 'active' to the clicked button and its corresponding section
+            document.getElementById(sectionId).classList.add('active');
+            btnElement.classList.add('active');
+
+            // Update the section title in the header
+            document.getElementById('section-title').textContent = btnElement.querySelector('.text').textContent;
+        }
+
+        // Google Sheets API configuration
+        const sheetId = "1VPcQaA_h_5s5TQP8_twULspy8CknI7_W_WcKVjCpbrQ";
+        const apiKey = "AIzaSyCQjribXYsn26hdnIwgm0h9Cg7TysjyWg4"; // !!! ВНИМАНИЕ: Не рекомендуется публиковать API ключ в открытом доступе для продакшн-приложений.
+
+        function loadSheet(sheetName, tableId) {
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?includeGridData=true&key=${apiKey}`)
+                .then(res => {
+                    if (!res.ok) {
+                        return res.json().then(errorData => {
+                            console.error(`Ошибка при загрузке таблицы ${sheetName}:`, errorData);
+                            throw new Error(`Ошибка API: ${errorData.error.message || 'Неизвестная ошибка'}`);
+                        });
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    const sheet = data.sheets.find(s => s.properties.title === sheetName);
+                    if (!sheet) {
+                        console.warn(`Лист с названием "${sheetName}" не найден.`);
+                        document.getElementById(tableId).innerHTML = `<tr><td>Лист "${sheetName}" не найден. Проверьте название.</td></tr>`;
+                        return;
+                    }
+                    const { merges = [] } = sheet;
+                    const grid = sheet.data[0];
+                    const rows = grid.rowData || [];
+                    const rowMeta = grid.rowMetadata || [];
+                    const colMeta = grid.columnMetadata || [];
+
+                    const visibleRows = rows.map((r, i) => i).filter(i => !(rowMeta[i] && rowMeta[i].hiddenByUser));
+                    const totalCols = Math.max(colMeta.length, ...rows.map(r => r.values ? r.values.length : 0));
+                    // Limit to 9 columns if more exist, and filter hidden columns
+                    const visibleCols = [...Array(totalCols).keys()].filter(j => !(colMeta[j] && colMeta[j].hiddenByUser)).slice(0, 9);
+
+                    const table = document.getElementById(tableId);
+                    table.innerHTML = "";
+
+                    function getMerge(r, c) {
+                        for (let m of merges) {
+                            if (r >= m.startRowIndex && r < m.endRowIndex && c >= m.startColumnIndex && c < m.endColumnIndex) {
+                                if (r === m.startRowIndex && c === m.startColumnIndex) {
+                                    const rowspan = visibleRows.filter(rr => rr >= m.startRowIndex && rr < m.endRowIndex).length;
+                                    const colspan = visibleCols.filter(cc => cc >= m.startColumnIndex && cc < m.endColumnIndex).length;
+                                    return { rowspan, colspan };
+                                }
+                                return 'merged_cell'; // Indicate it's part of a merge but not the top-left
+                            }
+                        }
+                        return null;
+                    }
+
+                    function formatText(text) {
+                        return text ? text.replace(/\n/g, "<br>") : "";
+                    }
+
+                    function getColor(format) {
+                        if (format && format.backgroundColor) {
+                            const bg = format.backgroundColor;
+                            const r = Math.round((bg.red || 0) * 255);
+                            const g = Math.round((bg.green || 0) * 255);
+                            const b = Math.round((bg.blue || 0) * 255);
+                            const a = bg.alpha !== undefined ? bg.alpha : 1;
+                            return `rgba(${r},${g},${b},${a})`;
+                        }
+                        return null;
+                    }
+
+                    visibleRows.forEach((origRowIdx) => {
+                        const row = rows[origRowIdx] || {};
+                        const values = row.values || [];
+                        const tr = document.createElement("tr");
+
+                        visibleCols.forEach(origColIdx => {
+                            const mergeStatus = getMerge(origRowIdx, origColIdx);
+                            if (mergeStatus === 'merged_cell') return; // Skip cells that are part of an ongoing merge
+
+                            const cell = values[origColIdx] || {};
+                            const cellElement = document.createElement(origRowIdx === visibleRows[0] ? "th" : "td"); // Check if it's the first visible row
+
+                            if (mergeStatus && mergeStatus.rowspan) {
+                                cellElement.rowSpan = mergeStatus.rowspan;
+                            }
+                            if (mergeStatus && mergeStatus.colspan) {
+                                cellElement.colSpan = mergeStatus.colspan;
+                            }
+
+                            cellElement.innerHTML = formatText(cell.formattedValue);
+                            const bgColor = getColor(cell.effectiveFormat);
+                            if (bgColor) cellElement.style.backgroundColor = bgColor;
+
+                            tr.appendChild(cellElement);
+                        });
+
+                        table.appendChild(tr);
+                    });
+                })
+                .catch(error => {
+                    console.error(`Общая ошибка при загрузке таблицы ${sheetName}:`, error);
+                    document.getElementById(tableId).innerHTML = `<tr><td colspan="9" style="color: red;">Ошибка загрузки данных: ${error.message || 'Неизвестная ошибка. Проверьте API ключ и доступ к таблице.'}</td></tr>`;
+                });
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial active section and title
+            const initialLink = document.querySelector('.sidebar-nav li a.active');
+            if (initialLink) {
+                showSection(initialLink.getAttribute('href').substring(1), initialLink);
             }
-          }
-          return null;
-        }
 
-        function isMerged(r, c) {
-          return merges.some(m => r >= m.startRowIndex && r < m.endRowIndex && c >= m.startColumnIndex && c < m.endColumnIndex && !(r === m.startRowIndex && c === m.startColumnIndex));
-        }
+            // Add event listeners to sidebar navigation links
+            document.querySelectorAll('.sidebar-nav li a').forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault(); // Prevent default link behavior
+                    const targetSectionId = this.getAttribute('href').substring(1);
+                    showSection(targetSectionId, this);
+                });
+            });
 
-        function formatText(text) {
-          return text ? text.replace(/\n/g, "<br>") : "";
-        }
+            // Load data for the sheet tables
+            loadSheet("скрипт", "sheetTable");
+            loadSheet("сопровод", "secondSheetTable");
 
-        function getColor(format) {
-          if (format && format.backgroundColor) {
-            const bg = format.backgroundColor;
-            const r = Math.round((bg.red || 0) * 255);
-            const g = Math.round((bg.green || 0) * 255);
-            const b = Math.round((bg.blue || 0) * 255);
-            const a = bg.alpha !== undefined ? bg.alpha : 1;
-            return `rgba(${r},${g},${b},${a})`;
-          }
-          return null;
-        }
-
-        visibleRows.forEach((origRow, rowIndex) => {
-          const row = rows[origRow] || {};
-          const values = row.values || [];
-          const tr = document.createElement("tr");
-
-          visibleCols.forEach(origCol => {
-            if (isMerged(origRow, origCol)) return;
-
-            const mergeInfo = getMerge(origRow, origCol);
-            const cell = values[origCol] || {};
-            const cellElement = document.createElement(rowIndex === 0 ? "th" : "td");
-
-            if (mergeInfo) {
-              if (mergeInfo.rowspan > 1) cellElement.rowSpan = mergeInfo.rowspan;
-              if (mergeInfo.colspan > 1) cellElement.colSpan = mergeInfo.colspan;
-            }
-
-            cellElement.innerHTML = formatText(cell.formattedValue);
-            const bgColor = getColor(cell.effectiveFormat);
-            if (bgColor) cellElement.style.backgroundColor = bgColor;
-
-            tr.appendChild(cellElement);
-          });
-
-          table.appendChild(tr);
+            // Initialize clock
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
         });
-      })
-      .catch(console.error);
-  </script>
+    </script>
 </body>
 </html>
