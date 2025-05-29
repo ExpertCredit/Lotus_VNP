@@ -1,216 +1,336 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Калькулятор Otbasy</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 50px;
-    }
-    .container {
-      max-width: 400px;
-      margin: auto;
-      padding: 20px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    input, button, select {
-      margin: 10px;
-      padding: 10px;
-      width: 90%;
-      font-size: 16px;
-    }
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #f9f9f9;
-      min-width: 200px;
-      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-      z-index: 1;
-    }
-    .dropdown-content button {
-      display: block;
-      width: 100%;
-      text-align: left;
-      border: none;
-      background: none;
-      padding: 10px;
-      cursor: pointer;
-    }
-    .dropdown-content button:hover {
-      background-color: #ddd;
-    }
-    .legend {
-      margin-top: 20px;
-      font-size: 14px;
-      text-align: left;
-    }
-    .legend p {
-      margin: 5px 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Калькулятор Otbasy</title>
+    <style>
+        :root {
+            /* Vision Pro Glassmorphism variables for standalone use */
+            --base-font-size: 16px;
+            --text-color: rgba(0, 0, 0, 0.9);
+            --text-color-dimmed: rgba(0, 0, 0, 0.6);
+            --highlight-color: #007aff;
+            --background-blur: 25px;
+            --glass-background-light: rgba(255, 255, 255, 0.10); /* Transparent effect */
+            --glass-background-dark: rgba(255, 255, 255, 0.10); /* Transparent effect */
+            --glass-border-color: rgba(255, 255, 255, 0.3);
+            --card-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            --border-radius: 20px; /* Slightly smaller for a standalone card */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-family);
+            background-image: url('https://sun9-34.userapi.com/impg/rsw3tAqVyPbsV-5gkI1GOs0_VM_4aN0ojmMt9g/fQWc7rAfzX8.jpg?size=2560x804&quality=95&sign=ec1b08cdf6dac0bd5ecb55390bfd4ef1&type=album'); /* Using your uploaded image */
+            background-size: cover;
+            background-position: center;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center; /* Center content horizontally */
+            align-items: center; /* Center content vertically */
+            min-height: 100vh;
+            overflow: auto; /* Allow scrolling if content overflows on small screens */
+            background-attachment: fixed;
+            padding: 20px; /* Add some padding around the calculator */
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: var(--glass-background-light);
+            backdrop-filter: blur(var(--background-blur));
+            -webkit-backdrop-filter: blur(var(--background-blur));
+            border-radius: var(--border-radius);
+            border: 1px solid var(--glass-border-color);
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            max-width: 500px; /* Max width for the calculator card */
+            width: 100%; /* Make it responsive */
+            box-sizing: border-box;
+            text-align: center; /* Center block-level children like form-groups */
+        }
+
+        h2, h3 {
+            color: var(--text-color);
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            background: rgba(255, 255, 255, 0.1); /* Transparent input background */
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Lighter border */
+            border-radius: 8px;
+            padding: 12px 15px;
+            width: 90%; /* Original width from your code */
+            max-width: 300px; /* Limit input width for centering */
+            display: block; /* Ensure it takes full width for centering */
+            margin: 10px auto; /* Center the input itself */
+            font-size: 16px;
+            color: var(--text-color); /* Input text color */
+            outline: none;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        input::placeholder {
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        input:focus {
+            border-color: var(--highlight-color);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        button {
+            background: rgba(0, 122, 255, 0.7); /* Blue for primary action */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            width: 90%; /* Original width from your code */
+            max-width: 300px; /* Limit button width for centering */
+            display: block; /* Ensure it takes full width for centering */
+            margin: 10px auto; /* Center the button itself */
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        button:hover {
+            background-color: rgba(0, 122, 255, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: 90%; /* Match button width */
+            max-width: 300px; /* Match button max-width */
+            margin: 10px auto; /* Center the dropdown */
+        }
+        
+        .dropdown > button { /* Style the dropdown toggle button */
+            width: 100%;
+            margin: 0; /* Override previous button margin */
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8); /* Lighter glass for dropdown content */
+            backdrop-filter: blur(calc(var(--background-blur) / 2));
+            -webkit-backdrop-filter: blur(calc(var(--background-blur) / 2));
+            min-width: 100%; /* Take full width of parent dropdown */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 10; /* Ensure dropdown is on top */
+            border-radius: 8px;
+            overflow: hidden; /* For rounded corners */
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            left: 50%; /* Center dropdown content relative to its parent */
+            transform: translateX(-50%); /* Adjust for centering */
+        }
+
+        .dropdown-content button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 16px;
+            border-radius: 0; /* No radius for inner buttons */
+            margin: 0; /* Override default button margin */
+        }
+
+        .dropdown-content button:hover {
+            background-color: rgba(0, 122, 255, 0.2); /* Light blue hover for dropdown items */
+        }
+
+        .legend {
+            margin-top: 30px;
+            font-size: 14px;
+            text-align: left; /* Keep legend text left-aligned for readability */
+            color: var(--text-color-dimmed);
+            max-width: 300px; /* Limit width for centering */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .legend p {
+            margin: 5px 0;
+        }
+
+        /* Form specific styling for centering labels and inputs */
+        #calculatorForm div[id^="form-"] {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center items vertically in column */
+        }
+        #calculatorForm label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-color-dimmed);
+            text-align: center; /* Center label text */
+            width: 100%; /* Allow label to take full width for centering */
+        }
+        #result {
+            background: rgba(255, 255, 255, 0.1); /* Lighter background for results */
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: var(--text-color);
+            border: 1px dashed rgba(255, 255, 255, 0.3); /* Dashed border for results */
+            margin-top: 20px;
+            text-align: center; /* Center result text */
+            max-width: 300px; /* Limit result area width for centering */
+            margin-left: auto; /* Center the result area */
+            margin-right: auto; /* Center the result area */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h2, h3 {
+                font-size: 1.5em;
+            }
+            input, button, .dropdown {
+                width: 100%;
+                max-width: none; /* Remove max-width on small screens */
+            }
+            .legend, #result {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Заголовок, отображающий выбранный калькулятор -->
-    <h2 id="calcTitle">расчет ОП</h2>
-    <br>
-    <div id="calculatorForm">
-      <!-- Форма для расчета ОП -->
-      <div id="form-ob">
-        <label for="nv">Введите НВ:</label>
-        <input type="text" id="nv" placeholder="Начисленное вознаграждение" required oninput="formatInputImmediate(event)">
-        <label for="ds">Введите ДС:</label>
-        <input type="text" id="ds" placeholder="Договорная сумма" required oninput="formatInputImmediate(event)">
-      </div>
-      <!-- Форма для расчета НВ -->
-      <div id="form-alt" style="display: none;">
-        <label for="ds_alt">Введите ДС:</label>
-        <input type="text" id="ds_alt" placeholder="Договорная сумма" required oninput="formatInputImmediate(event)">
-        <label for="op">Введите ОП:</label>
-        <input type="text" id="op" placeholder="Оценочный показатель" required oninput="formatInputImmediate(event)">
-      </div>
-      <!-- Форма для расчета ДС -->
-      <div id="form-ds" style="display: none;">
-        <label for="nv_ds">Введите НВ:</label>
-        <input type="text" id="nv_ds" placeholder="Начисленное вознаграждение" required oninput="formatInputImmediate(event)">
-        <label for="op_ds">Введите ОП:</label>
-        <input type="text" id="op_ds" placeholder="Оценочный показатель" required oninput="formatInputImmediate(event)">
-      </div>
-      <button onclick="calculate()">Рассчитать</button>
-      <h3 id="result"></h3>
+    <div class="container">
+        <h2 id="calcTitle">расчет ОП</h2>
+        <br>
+        <div id="calculatorForm">
+            <div id="form-ob">
+                <label for="nv">Введите НВ:</label>
+                <input type="text" id="nv" placeholder="Начисленное вознаграждение" required oninput="formatInputImmediate(event)">
+                <label for="ds">Введите ДС:</label>
+                <input type="text" id="ds" placeholder="Договорная сумма" required oninput="formatInputImmediate(event)">
+            </div>
+            <div id="form-alt" style="display: none;">
+                <label for="ds_alt">Введите ДС:</label>
+                <input type="text" id="ds_alt" placeholder="Договорная сумма" required oninput="formatInputImmediate(event)">
+                <label for="op">Введите ОП:</label>
+                <input type="text" id="op" placeholder="Оценочный показатель" required oninput="formatInputImmediate(event)">
+            </div>
+            <div id="form-ds" style="display: none;">
+                <label for="nv_ds">Введите НВ:</label>
+                <input type="text" id="nv_ds" placeholder="Начисленное вознаграждение" required oninput="formatInputImmediate(event)">
+                <label for="op_ds">Введите ОП:</label>
+                <input type="text" id="op_ds" placeholder="Оценочный показатель" required oninput="formatInputImmediate(event)">
+            </div>
+            <button onclick="calculate()">Рассчитать</button>
+            <h3 id="result"></h3>
+        </div>
+        <div class="dropdown">
+            <button onclick="toggleDropdown()">Выбрать калькулятор</button>
+            <div class="dropdown-content" id="calculatorMenu">
+                <button onclick="setCalculator('ob')">расчет ОП</button>
+                <button onclick="setCalculator('alt')">расчет НВ</button>
+                <button onclick="setCalculator('ds')">расчет ДС</button>
+            </div>
+        </div>
+        <div class="legend">
+            <p><strong>ОП</strong> – Оценочный показатель</p>
+            <p><strong>НВ</strong> – Начисленное вознаграждение</p>
+            <p><strong>ДС</strong> – Договорная сумма</p>
+        </div>
     </div>
-    <div class="dropdown">
-      <button onclick="toggleDropdown()">Выбрать калькулятор</button>
-      <div class="dropdown-content" id="calculatorMenu">
-        <button onclick="setCalculator('ob')">расчет ОП</button>
-        <button onclick="setCalculator('alt')">расчет НВ</button>
-        <button onclick="setCalculator('ds')">расчет ДС</button>
-      </div>
-    </div>
-    <!-- Легенда с расшифровками аббревиатур -->
-    <div class="legend">
-      <p><strong>ОП</strong> – Оценочный показатель</p>
-      <p><strong>НВ</strong> – Начисленное вознаграждение</p>
-      <p><strong>ДС</strong> – Договорная сумма</p>
-    </div>
-  </div>
-  <script>
-    let currentCalculator = 'ob';
+    <script>
+        let currentCalculator = 'ob';
 
-    function toggleDropdown() {
-      let menu = document.getElementById("calculatorMenu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
-    }
+        function toggleDropdown() {
+            let menu = document.getElementById("calculatorMenu");
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        }
 
-    function setCalculator(type) {
-      currentCalculator = type;
-      document.getElementById("calculatorMenu").style.display = "none";
-      document.getElementById("result").innerText = "";
-      // Скрываем все формы
-      document.getElementById("form-ob").style.display = "none";
-      document.getElementById("form-alt").style.display = "none";
-      document.getElementById("form-ds").style.display = "none";
-      
-      // Обновляем заголовок и отображаем нужную форму
-      if (type === 'ob') {
-        document.getElementById("calcTitle").innerText = "расчет ОП";
-        document.getElementById("form-ob").style.display = "block";
-      } else if (type === 'alt') {
-        document.getElementById("calcTitle").innerText = "расчет НВ";
-        document.getElementById("form-alt").style.display = "block";
-      } else if (type === 'ds') {
-        document.getElementById("calcTitle").innerText = "расчет ДС";
-        document.getElementById("form-ds").style.display = "block";
-      }
-    }
+        function setCalculator(type) {
+            currentCalculator = type;
+            document.getElementById("calculatorMenu").style.display = "none";
+            document.getElementById("result").innerText = "";
+            // Скрываем все формы
+            document.getElementById("form-ob").style.display = "none";
+            document.getElementById("form-alt").style.display = "none";
+            document.getElementById("form-ds").style.display = "none";
+            
+            // Обновляем заголовок и отображаем нужную форму
+            if (type === 'ob') {
+                document.getElementById("calcTitle").innerText = "расчет ОП";
+                document.getElementById("form-ob").style.display = "block";
+            } else if (type === 'alt') {
+                document.getElementById("calcTitle").innerText = "расчет НВ";
+                document.getElementById("form-alt").style.display = "block";
+            } else if (type === 'ds') {
+                document.getElementById("calcTitle").innerText = "расчет ДС";
+                document.getElementById("form-ds").style.display = "block";
+            }
+        }
 
-    // Функция для немедленного форматирования ввода
-    function formatInputImmediate(e) {
-      let input = e.target;
-      // Удаляем всё, кроме цифр
-      let digits = input.value.replace(/\D/g, '');
-      if (digits === "") {
-        input.value = "";
-        return;
-      }
-      // Преобразуем в число и форматируем
-      let number = parseInt(digits, 10);
-      input.value = number.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
-    }
+        // Функция для немедленного форматирования ввода
+        function formatInputImmediate(e) {
+            let input = e.target;
+            // Удаляем всё, кроме цифр
+            let digits = input.value.replace(/\D/g, '');
+            if (digits === "") {
+                input.value = "";
+                return;
+            }
+            // Преобразуем в число и форматируем
+            let number = parseInt(digits, 10);
+            input.value = number.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
+        }
 
-    // Функция для получения числового значения из поля ввода (без пробелов)
-    function parseInput(id) {
-      let value = document.getElementById(id).value.replace(/\s/g, '');
-      return parseFloat(value);
-    }
+        // Функция для получения числового значения из поля ввода (без пробелов)
+        function parseInput(id) {
+            let value = document.getElementById(id).value.replace(/\s/g, '');
+            return parseFloat(value);
+        }
 
-    function calculate() {
-      let resultText = "Введите корректные значения.";
-      if (currentCalculator === 'ob') {
-        let nv = parseInput("nv");
-        let ds = parseInput("ds");
-        if (!isNaN(nv) && !isNaN(ds) && ds !== 0) {
-          let result = (nv * 1000) / ds;
-          resultText = "Результат расчета ОП: " + result.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
+        function calculate() {
+            let resultText = "Введите корректные значения.";
+            if (currentCalculator === 'ob') {
+                let nv = parseInput("nv");
+                let ds = parseInput("ds");
+                if (!isNaN(nv) && !isNaN(ds) && ds !== 0) {
+                    let result = (nv * 1000) / ds;
+                    // Формула: ОП = (НВ * 1000) / ДС
+                    resultText = "ОП равен: " + result.toLocaleString('ru-RU', { maximumFractionDigits: 0 }) +
+                                 "\nФормула: ОП = (НВ * 1000) / ДС";
+                }
+            } else if (currentCalculator === 'alt') {
+                let ds_alt = parseInput("ds_alt");
+                let op = parseInput("op");
+                if (!isNaN(ds_alt) && !isNaN(op)) {
+                    let result = (ds_alt * op) / 1000;
+                    // Формула: НВ = (ДС * ОП) / 1000
+                    resultText = "НВ равен: " + result.toLocaleString('ru-RU', { maximumFractionDigits: 0 }) +
+                                 "\nФормула: НВ = (ДС * ОП) / 1000";
+                }
+            } else if (currentCalculator === 'ds') {
+                let nv_ds = parseInput("nv_ds");
+                let op_ds = parseInput("op_ds");
+                if (!isNaN(nv_ds) && !isNaN(op_ds) && op_ds !== 0) {
+                    let result = (nv_ds * 1000) / op_ds;
+                    // Формула: ДС = (НВ * 1000) / ОП
+                    resultText = "ДС равен: " + result.toLocaleString('ru-RU', { maximumFractionDigits: 0 }) +
+                                 "\nФормула: ДС = (НВ * 1000) / ОП";
+                }
+            }
+            document.getElementById("result").innerText = resultText;
         }
-      } else if (currentCalculator === 'alt') {
-        let ds_alt = parseInput("ds_alt");
-        let op = parseInput("op");
-        if (!isNaN(ds_alt) && !isNaN(op)) {
-          let result = (ds_alt * op) / 1000;
-          resultText = "Результат расчета НВ: " + result.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
-        }
-      } else if (currentCalculator === 'ds') {
-        let nv_ds = parseInput("nv_ds");
-        let op_ds = parseInput("op_ds");
-        if (!isNaN(nv_ds) && !isNaN(op_ds) && op_ds !== 0) {
-          let result = (nv_ds * 1000) / op_ds;
-          resultText = "Результат расчета ДС: " + result.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
-        }
-      }
-      document.getElementById("result").innerText = resultText;
-    }
-    function calculate() {
-      let resultText = "Введите корректные значения.";
-      if (currentCalculator === 'ob') {
-        let nv = parseInput("nv");
-        let ds = parseInput("ds");
-        if (!isNaN(nv) && !isNaN(ds) && ds !== 0) {
-          let result = (nv * 1000) / ds;
-          // Формула: ОП = (НВ * 1000) / ДС
-          resultText = "ОП равен: " + result.toLocaleString('ru-RU', { maximumFractionDigits: 0 }) +
-                       "\nФормула: ОП = (НВ * 1000) / ДС";
-        }
-      } else if (currentCalculator === 'alt') {
-        let ds_alt = parseInput("ds_alt");
-        let op = parseInput("op");
-        if (!isNaN(ds_alt) && !isNaN(op)) {
-          let result = (ds_alt * op) / 1000;
-          // Формула: НВ = (ДС * ОП) / 1000
-          resultText = "НВ равен: " + result.toLocaleString('ru-RU', { maximumFractionDigits: 0 }) +
-                       "\nФормула: НВ = (ДС * ОП) / 1000";
-        }
-      } else if (currentCalculator === 'ds') {
-        let nv_ds = parseInput("nv_ds");
-        let op_ds = parseInput("op_ds");
-        if (!isNaN(nv_ds) && !isNaN(op_ds) && op_ds !== 0) {
-          let result = (nv_ds * 1000) / op_ds;
-          // Формула: ДС = (НВ * 1000) / ОП
-          resultText = "ДС равен: " + result.toLocaleString('ru-RU', { maximumFractionDigits: 0 }) +
-                       "\nФормула: ДС = (НВ * 1000) / ОП";
-        }
-      }
-      document.getElementById("result").innerText = resultText;
-    }
-  </script>
+    </script>
 </body>
 </html>
